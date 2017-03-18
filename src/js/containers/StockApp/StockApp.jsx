@@ -4,25 +4,15 @@ import { bindActionCreators } from 'redux';
 import moment from 'moment';
 import { XYPlot, XAxis, YAxis, HorizontalGridLines, VerticalBarSeries, LineSeries } from 'react-vis';
 import { Grid, Panel, Button, ButtonGroup } from 'react-bootstrap';
+import Graph from '../../components/Graph';
 import 'react-vis/dist/main.scss';
 
 import { loadBorsdata } from '../../ducks/stocks';
 
 class StockApp extends Component {
   static propTypes = {
-    actions: PropTypes.object.isRequired,
-    tradeVolumePerAccount: PropTypes.array.isRequired,
-    tradePriceOverTime: PropTypes.array.isRequired,
-    exchangeVolumeByMinutes: PropTypes.array.isRequired
+    loadBorsdata: PropTypes.func.isRequired
   };
-
-  loadData() {
-    this.props.actions.loadData();
-  }
-
-  setTimeDuration(e) {
-    this.props.actions.setTimeDuration(parseInt(e.target.value, 10));
-  }
 
   render() {
     /*let chartsByPrice = this.props.tradePriceOverTime.map((stockData) => (
@@ -83,6 +73,7 @@ class StockApp extends Component {
     return (
       <Grid className="charts">
         <Button bsStyle="primary" onClick={() => this.props.loadBorsdata('hm')}>Load</Button>
+        <Graph />
       </Grid>
     );
   }
@@ -90,9 +81,7 @@ class StockApp extends Component {
 
 function mapStateToProps(state) {
   return {
-    // tradeVolumePerAccount: state.stockReducer.tradeVolumePerAccount,
-    // tradePriceOverTime: state.stockReducer.tradePriceOverTime,
-    // exchangeVolumeByMinutes: state.stockReducer.exchangeVolumeByMinutes
+    stocks: state.stockReducer
   };
 }
 
