@@ -4,9 +4,9 @@ import { bindActionCreators } from 'redux';
 import moment from 'moment';
 import { XYPlot, XAxis, YAxis, HorizontalGridLines, VerticalBarSeries, LineSeries } from 'react-vis';
 import { Grid, Panel, Button, ButtonGroup } from 'react-bootstrap';
-import './../../../../node_modules/react-vis/dist/main.scss';
+import 'react-vis/dist/main.scss';
 
-import * as StockActions from './../../actions/StockActions';
+import { loadBorsdata } from '../../ducks/stocks';
 
 class StockApp extends Component {
   static propTypes = {
@@ -25,7 +25,7 @@ class StockApp extends Component {
   }
 
   render() {
-    let chartsByPrice = this.props.tradePriceOverTime.map((stockData) => (
+    /*let chartsByPrice = this.props.tradePriceOverTime.map((stockData) => (
       <Panel collapsible
              header={stockData.symbol + '| Price over time | As of: ' + moment(stockData.asOfDate).format("MMM Do YYYY")}
              key={stockData.symbol}>
@@ -78,16 +78,11 @@ class StockApp extends Component {
             data={this.props.tradeVolumePerAccount}/>
         </XYPlot>
       </Panel>
-    );
+    );*/
 
     return (
       <Grid className="charts">
-        {this.props.tradeVolumePerAccount.length ? [
-          chartByVolume,
-          chartsByPrice,
-          chartsByVolumeAndTime
-        ] : <Button bsStyle="primary" onClick={this.loadData.bind(this)}>Load</Button>
-        }
+        <Button bsStyle="primary" onClick={() => this.props.loadBorsdata('hm')}>Load</Button>
       </Grid>
     );
   }
@@ -95,15 +90,15 @@ class StockApp extends Component {
 
 function mapStateToProps(state) {
   return {
-    tradeVolumePerAccount: state.stockReducer.tradeVolumePerAccount,
-    tradePriceOverTime: state.stockReducer.tradePriceOverTime,
-    exchangeVolumeByMinutes: state.stockReducer.exchangeVolumeByMinutes
+    // tradeVolumePerAccount: state.stockReducer.tradeVolumePerAccount,
+    // tradePriceOverTime: state.stockReducer.tradePriceOverTime,
+    // exchangeVolumeByMinutes: state.stockReducer.exchangeVolumeByMinutes
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(StockActions, dispatch)
+    loadBorsdata: bindActionCreators(loadBorsdata, dispatch)
   };
 }
 

@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 
-import rootReducer from '../reducers';
+import rootReducer from './ducks';
 import { persistState } from 'redux-devtools';
 
 export default function configureStore(initialState) {
@@ -26,7 +26,7 @@ export default function configureStore(initialState) {
       middleware,
       window.devToolsExtension ?
         window.devToolsExtension() :
-        require('../containers/DevTools').default.instrument(),
+        require('./containers/DevTools').default.instrument(),
 
       // Optional. Lets you write ?debug_session=<key> in address bar to persist debug sessions
       persistState(getDebugSessionKey())
@@ -39,8 +39,8 @@ export default function configureStore(initialState) {
 
   // Enable Webpack hot module replacement for reducers
   if (module.hot) {
-    module.hot.accept('../reducers', () =>
-      store.replaceReducer(require('../reducers').default)
+    module.hot.accept('./ducks', () =>
+      store.replaceReducer(require('./ducks').default)
     );
   }
 
