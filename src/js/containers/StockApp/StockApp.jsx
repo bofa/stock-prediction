@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import moment from 'moment';
 import { XYPlot, XAxis, YAxis, HorizontalGridLines, VerticalBarSeries, LineSeries } from 'react-vis';
 import { Grid, Panel, Button, ButtonGroup } from 'react-bootstrap';
-import Graph from '../../components/Graph';
+import BarChart from '../../components/BarChart';
 import 'react-vis/dist/main.scss';
 
 import { loadBorsdata } from '../../ducks/stocks';
@@ -15,6 +15,18 @@ class StockApp extends Component {
   };
 
   render() {
+    const { stocks } = this.props;
+
+    const yieldArray = stocks
+      .getIn(['hm', 5, 'Sparkline'], '')
+      .split(',')
+      .map((value, index, array) => ({
+        year: 2017 + index - array.length,
+        yield: Number(value)
+      }));
+
+    console.log('yieldArray', yieldArray);
+
     /*let chartsByPrice = this.props.tradePriceOverTime.map((stockData) => (
       <Panel collapsible
              header={stockData.symbol + '| Price over time | As of: ' + moment(stockData.asOfDate).format("MMM Do YYYY")}
@@ -73,7 +85,7 @@ class StockApp extends Component {
     return (
       <Grid className="charts">
         <Button bsStyle="primary" onClick={() => this.props.loadBorsdata('hm')}>Load</Button>
-        <Graph />
+        <BarChart width={400} height={400} stockYield={yieldArray} />
       </Grid>
     );
   }

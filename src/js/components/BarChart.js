@@ -1,122 +1,105 @@
-var margin = {top: 80, right: 180, bottom: 80, left: 180},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+/* eslint react/prefer-es6-class: "off", max-len: "off" */
+import React, { PropTypes } from 'react';
+import * as d3 from 'd3';
+import Faux from 'react-faux-dom';
 
-var svg = d3.select("body").append("svg")
-	.attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-	.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+// Can't use ES6 because Faux needs mixins too work.
+const DatamodelGraph = React.createClass({
+  propTypes: {
+    data: PropTypes.object.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    init: PropTypes.func.isRequired
+  },
 
-d3.tsv("VotingInformation.tsv", function(error, data){
+  mixins: [
+    Faux.mixins.core,
+    Faux.mixins.anim
+  ],
 
-	// filter year
-	var data = data.filter(function(d){return d.Year == '2012';});
-	// Get every column value
-	var elements = Object.keys(data[0])
-		.filter(function(d){
-			return ((d != "Year") & (d != "State"));
-		});
-	var selection = elements[0];
+  getInitialState() {
+    return {
+      chart: 'loading...'
+    };
+  },
 
-	var y = d3.scale.linear()
-			.domain([0, d3.max(data, function(d){
-				return +d[selection];
-			})])
-			.range([height, 0]);
+  componentWillMount() {
+    // this.props.init();
+  },
 
-	var x = d3.scale.ordinal()
-			.domain(data.map(function(d){ return d.State;}))
-			.rangeBands([0, width]);
+  componentWillReceiveProps(nextProps) {
 
+    const { stockYield, width, height } = nextProps;
+    // console.log('the data', data);
 
-	var xAxis = d3.svg.axis()
-		.scale(x)
-	    .orient("bottom");
+    const faux = this.connectFauxDOM('div.renderedD3', 'chart');
+    // set the dimensions and margins of the diagram
+    const margin = { top: 0, right: 0, bottom: 0, left: 0 };
 
-	var yAxis = d3.svg.axis()
-		.scale(y)
-	    .orient("left");
+    const svg = d3.select(faux).append('svg')
+      .attr('width', width)
+      .attr('height', height);
 
-	svg.append("g")
-    	.attr("class", "x axis")
-    	.attr("transform", "translate(0," + height + ")")
-    	.call(xAxis)
-    	.selectAll("text")
-    	.style("font-size", "8px")
-      	.style("text-anchor", "end")
-      	.attr("dx", "-.8em")
-      	.attr("dy", "-.55em")
-      	.attr("transform", "rotate(-90)" );
+    const g = svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
 
+    const data = stockYield;
 
- 	svg.append("g")
-    	.attr("class", "y axis")
-    	.call(yAxis);
+    var barWidth = 15;
+    // var width = (barWidth + 10) * data.length;
+    // var height = 200;
 
-	svg.selectAll("rectangle")
-		.data(data)
-		.enter()
-		.append("rect")
-		.attr("class","rectangle")
-		.attr("width", width/data.length)
-		.attr("height", function(d){
-			return height - y(+d[selection]);
-		})
-		.attr("x", function(d, i){
-			return (width / data.length) * i ;
-		})
-		.attr("y", function(d){
-			return y(+d[selection]);
-		})
-		.append("title")
-		.text(function(d){
-			return d.State + " : " + d[selection];
-		});
+    var x = d3.scaleLinear().domain([0, data.length]).range([0, width]);
+    var y = d3.scaleLinear().domain([0, d3.max(data, function(datum) { return datum.yield; })]).
+      rangeRound([0, height]);
 
-	var selector = d3.select("#drop")
-    	.append("select")
-    	.attr("id","dropdown")
-    	.on("change", function(d){
-        	selection = document.getElementById("dropdown");
+    svg.selectAll("rect").
+      data(data).
+      enter().
+      append("svg:rect").
+      attr("x", function(datum, index) { return x(index); }).
+      attr("y", function(datum) { return height - y(datum.yield); }).
+      attr("height", function(datum) { return y(datum.yield); }).
+      attr("width", barWidth).
+      attr("fill", "#2d578b");
 
-        	y.domain([0, d3.max(data, function(d){
-				return +d[selection.value];})]);
+    function dragstarted(d) {
+      console.log('dragstarted', d);
+      d3.select(this).raise().classed("active", true);
+    }
 
-        	yAxis.scale(y);
+    function dragged(d) {
+      console.log('dragged', d);
+      d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+    }
 
-        	d3.selectAll(".rectangle")
-           		.transition()
-	            .attr("height", function(d){
-					return height - y(+d[selection.value]);
-				})
-				.attr("x", function(d, i){
-					return (width / data.length) * i ;
-				})
-				.attr("y", function(d){
-					return y(+d[selection.value]);
-				})
-           		.ease("linear")
-           		.select("title")
-           		.text(function(d){
-           			return d.State + " : " + d[selection.value];
-           		});
-      
-           	d3.selectAll("g.y.axis")
-           		.transition()
-           		.call(yAxis);
+    function dragended(d) {
+      d3.select(this).classed("active", false);
+    }
 
-         });
-
-    selector.selectAll("option")
-      .data(elements)
-      .enter().append("option")
-      .attr("value", function(d){
-        return d;
-      })
-      .text(function(d){
-        return d;
-      })
+    // Dragabel box
+    var box = svg.append("rect")
+      .attr("x", 10)
+      .attr("y", 10)
+      .attr("width", 50)
+      .attr("height", 100)
+      .call(d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended));
 
 
+
+    this.animateFauxDOM(800);
+  },
+
+  render() {
+    return (
+      <div className="renderedD3">
+        {this.state.chart}
+      </div>
+    );
+  },
 });
+
+export default DatamodelGraph;
