@@ -84,8 +84,8 @@ class StockApp extends Component {
 
     return (
       <Grid className="charts">
-        <Button bsStyle="primary" onClick={() => this.props.loadBorsdata('hm')}>Load</Button>
         <BarChart width={400} height={400} stockYield={yieldArray} />
+        <Button bsStyle="primary" onClick={() => this.props.loadBorsdata('hm')}>Load</Button>
       </Grid>
     );
   }

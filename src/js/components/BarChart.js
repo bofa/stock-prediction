@@ -1,6 +1,7 @@
 /* eslint react/prefer-es6-class: "off", max-len: "off" */
 import React, { PropTypes } from 'react';
 import * as d3 from 'd3';
+// import d3Drag from 'd3-drag';
 import Faux from 'react-faux-dom';
 
 // Can't use ES6 because Faux needs mixins too work.
@@ -63,24 +64,11 @@ const DatamodelGraph = React.createClass({
       attr("width", barWidth).
       attr("fill", "#2d578b");
 
-    function dragstarted(d) {
-      console.log('dragstarted', d);
-      d3.select(this).raise().classed("active", true);
-    }
-
-    function dragged(d) {
-      console.log('dragged', d);
-      d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
-    }
-
-    function dragended(d) {
-      d3.select(this).classed("active", false);
-    }
-
     // Dragabel box
     var box = svg.append("rect")
-      .attr("x", 10)
-      .attr("y", 10)
+      .datum({x: 0, y: 0})
+      // .attr("x", 10)
+      // .attr("y", 10)
       .attr("width", 50)
       .attr("height", 100)
       .call(d3.drag()
@@ -88,9 +76,26 @@ const DatamodelGraph = React.createClass({
         .on("drag", dragged)
         .on("end", dragended));
 
+    function dragstarted() {
+      box.classed("dragging", true);
+    }
 
+    const draw = this.drawFauxDOM;
+    function dragged(d) {
+      console.log('event', d3.event);
+      d.x = event.x;
+      d.y = event.y;
+      box.attr("x", d3.event.sourceEvent.clientX)
+        .attr("y", d3.event.sourceEvent.clientY);
+      // this.drawFauxDOM();
+      draw();
+    }
 
-    this.animateFauxDOM(800);
+    function dragended() {
+      box.classed("dragging", false);
+    }
+
+    // this.animateFauxDOM(1000000000000);
   },
 
   render() {
