@@ -82,13 +82,14 @@ const DatamodelGraph = React.createClass({
 
     const draw = this.drawFauxDOM;
     function dragged(d) {
-      console.log('event', d3.event);
-      d.x = event.x;
-      d.y = event.y;
-      box.attr("x", d3.event.sourceEvent.clientX)
-        .attr("y", d3.event.sourceEvent.clientY);
+      console.log('event', d);
+      // d.x = event.x;
+      // d.y = event.y;
+      box.attr("x", event.x)
+        .attr("y", event.y);
       // this.drawFauxDOM();
       draw();
+      return d;
     }
 
     function dragended() {

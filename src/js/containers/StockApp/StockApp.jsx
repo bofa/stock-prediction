@@ -83,11 +83,18 @@ class StockApp extends Component {
     );*/
 
     return (
+      <div>
+        <BarChart width={400} height={400} stockYield={yieldArray} />
+        <Button bsStyle="primary" onClick={() => this.props.loadBorsdata('hm')}>Load</Button>
+      </div>
+    );
+
+    /*return (
       <Grid className="charts">
         <BarChart width={400} height={400} stockYield={yieldArray} />
         <Button bsStyle="primary" onClick={() => this.props.loadBorsdata('hm')}>Load</Button>
       </Grid>
-    );
+    );*/
   }
 }
 
