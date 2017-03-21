@@ -11,7 +11,7 @@ const PATHS = {
 
 const plugins = [
   // Shared code
-  new webpack.optimize.CommonsChunkPlugin('vendor', 'js/vendor.bundle.js'),
+  new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.bundle.js'),
   // Avoid publishing files when compilation fails
   new webpack.NoErrorsPlugin(),
   new webpack.DefinePlugin({
@@ -36,7 +36,7 @@ module.exports = {
   },
   output: {
     path: PATHS.build,
-    filename: 'js/[name].js',
+    filename: '[name].js',
     publicPath: '/'
   },
   stats: {
