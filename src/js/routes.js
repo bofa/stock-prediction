@@ -6,7 +6,7 @@ import StockApp from './containers/StockApp/StockApp';
 import NotFoundView from './views/NotFoundView';
 
 export default (
-  <Route path="/" component={App}>
+  <Route path="/stock-prediction" component={App}>
     <IndexRoute component={StockApp} />
     <Route path="404" component={NotFoundView} />
     <Redirect from="*" to="404" />
