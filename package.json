@@ -32,7 +32,8 @@
     "lint": "eslint config src/js/** --ext .js",
     "jscs": "jscs src/js/",
     "test": "mocha --compilers js:babel-core/register,css:./test/unit/cssNullCompiler.js --require ./test/unit/testHelper.js --recursive ./test/unit",
-    "test:watch": "npm run test -- --watch"
+    "test:watch": "npm run test -- --watch",
+    "deploy": "git subtree push --prefix build origin gh-pages"
   },
   "devDependencies": {
     "babel-core": "6.7.7",
