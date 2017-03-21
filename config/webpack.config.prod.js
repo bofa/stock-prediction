@@ -17,11 +17,11 @@ const plugins = [
   new CopyWebpackPlugin([
     {
       from: PATHS.images,
-      to: 'images'
+      to: './'
     }
   ]),
   // Shared code
-  new webpack.optimize.CommonsChunkPlugin('vendor', 'js/vendor.bundle.js'),
+  new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.bundle.js'),
   // Avoid publishing files when compilation fails
   new webpack.NoErrorsPlugin(),
   new webpack.DefinePlugin({
@@ -36,7 +36,7 @@ const plugins = [
     }
   }),
   // This plugin moves all the CSS into a separate stylesheet
-  new ExtractTextPlugin('css/app.css', { allChunks: true })
+  new ExtractTextPlugin('app.css', { allChunks: true })
 ];
 
 const sassLoaders = [
@@ -52,7 +52,7 @@ module.exports = {
   },
   output: {
     path: PATHS.build,
-    filename: 'js/[name].js',
+    filename: '[name].js',
     publicPath: '/'
   },
   stats: {
@@ -83,11 +83,11 @@ module.exports = {
       // Inline base64 URLs for <=8k images, direct URLs for the rest
       {
         test: /\.(png|jpg|jpeg|gif|svg)$/,
-        loader: 'url-loader?limit=8192&name=images/[name].[ext]?[hash]'
+        loader: 'url-loader?limit=8192&name=[name].[ext]?[hash]'
       },
       {
         test: /\.(woff|woff2)$/,
-        loader: 'url-loader?limit=8192&name=fonts/[name].[ext]?[hash]'
+        loader: 'url-loader?limit=8192&name=[name].[ext]?[hash]'
       }
     ]
   },
