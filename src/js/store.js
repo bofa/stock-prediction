@@ -9,7 +9,7 @@ export default function configureStore(initialState) {
   let middleware = applyMiddleware();
   let enhancer;
 
-  if (process.env.NODE_ENV !== 'production') {
+  // if (process.env.NODE_ENV !== 'production') {
 
     let middlewares = [require('redux-immutable-state-invariant')(), thunkMiddleware];
     middleware = applyMiddleware(...middlewares);
@@ -31,9 +31,9 @@ export default function configureStore(initialState) {
       // Optional. Lets you write ?debug_session=<key> in address bar to persist debug sessions
       persistState(getDebugSessionKey())
     );
-  } else {
-    enhancer = compose(middleware);
-  }
+  // } else {
+  //   enhancer = compose(middleware);
+  // }
 
   const store = createStore(rootReducer, initialState, enhancer);
 
