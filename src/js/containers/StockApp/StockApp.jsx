@@ -14,11 +14,16 @@ class StockApp extends Component {
     loadBorsdata: PropTypes.func.isRequired
   };
 
+  state = {
+    stock: 'hm'
+  }
+
   render() {
     const { stocks } = this.props;
+    const { stock } = this.state;
 
     const yieldArray = stocks
-      .getIn(['hm', 5, 'Sparkline'], '')
+      .getIn([stock, 5, 'Sparkline'], '')
       .split(',')
       .map((value, index, array) => ({
         year: 2017 + index - array.length,
@@ -82,10 +87,13 @@ class StockApp extends Component {
       </Panel>
     );*/
 
+    console.log('this.state', this.state);
+
     return (
       <div>
+        <input value={stock} onChange={(event) => this.setState({ stock: event.target.value })} type="text" name="firstname" /><br />
+        <Button bsStyle="primary" onClick={() => this.props.loadBorsdata(stock)}>Load</Button>
         <BarChart width={400} height={400} stockYield={yieldArray} />
-        <Button bsStyle="primary" onClick={() => this.props.loadBorsdata('hm')}>Load</Button>
       </div>
     );
 
