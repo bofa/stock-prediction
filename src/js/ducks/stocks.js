@@ -1,5 +1,25 @@
 import axios from 'axios';
-import { fromJS } from 'immutable';
+import { fromJS, Map } from 'immutable';
+
+// import { data as companies } from '../../data/companies.json';
+
+const currentYear = 2017;
+
+// const companies = [
+//   {
+//     CountryUrlName: 'hm'
+//   }
+// ];
+
+// console.log('companies', companies);
+
+// Promise.all(companies.map(comp => axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`)))
+//   .then(allResponse => allResponse.map(response => fromJS(response.data).map(item => item.update('Sparkline', lineString => lineString.split(',')
+//     .map((value, index, array) => ({
+//       year: currentYear + index - array.length,
+//       yield: Number(value)
+//     })))).toJS())
+//   ).then(console.log);
 
 const initialState = fromJS({
 
@@ -15,6 +35,27 @@ export function setTimeDuration(duration) {
   };
 }
 
+// export function loadBorsdata(name) {
+//   return (dispatch) => {
+//     axios.get(`https://borsdata.se/api/ratio?companyUrlName=${name}&ratioType=1`).then((response) => {
+//       console.log(response);
+//       return dispatch({
+//         type: STOCK_APP_LOAD_DATA,
+//         name,
+//         data: fromJS(response.data)
+//       });
+//     });
+//   };
+// }
+
+// const yieldArray = stocks
+//   .getIn([stock, 5, 'Sparkline'], '')
+//   .split(',')
+//   .map((value, index, array) => ({
+//     year: 2017 + index - array.length,
+//     yield: Number(value)
+//   }));
+
 export function loadBorsdata(name) {
   return (dispatch) => {
     axios.get(`https://borsdata.se/api/ratio?companyUrlName=${name}&ratioType=1`).then((response) => {
@@ -22,7 +63,11 @@ export function loadBorsdata(name) {
       return dispatch({
         type: STOCK_APP_LOAD_DATA,
         name,
-        data: fromJS(response.data)
+        data: fromJS(response.data).map(item => item.update('Sparkline', lineString => lineString.split(',')
+          .map((value, index, array) => Map({
+            year: currentYear + index - array.length,
+            yield: Number(value)
+          }))))
       });
     });
   };
