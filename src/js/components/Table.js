@@ -14,7 +14,7 @@ export default class App extends Component {
         <TableHeader>
           <TableRow>
             <TableHeaderColumn>Name</TableHeaderColumn>
-            <TableHeaderColumn>Price / Stock</TableHeaderColumn>
+            <TableHeaderColumn>Avg Dividend Ratio</TableHeaderColumn>
             <TableHeaderColumn>Estimated Return</TableHeaderColumn>
           </TableRow>
         </TableHeader>
@@ -22,7 +22,7 @@ export default class App extends Component {
           {data.map((company, key) => (
             <TableRow key={key} >
               <TableRowColumn>{company.Name}</TableRowColumn>
-              <TableRowColumn>{company.price}</TableRowColumn>
+              <TableRowColumn>{Math.round(100 * company.avgDividendRatio)}%</TableRowColumn>
               <TableRowColumn><Link to={`/stock-prediction/company/${company.ShortName}`} >{Math.round(100 * company.lsEarnings)}%</Link></TableRowColumn>
             </TableRow>
           ))}
