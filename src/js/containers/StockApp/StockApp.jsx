@@ -2,17 +2,11 @@ import { List } from 'immutable';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import moment from 'moment';
-import { Grid, Panel, Button, ButtonGroup } from 'react-bootstrap';
 import BarChart from '../../components/BarChart';
 import Table from '../../components/Table';
 import 'react-vis/dist/main.scss';
 
 import { loadBorsdata } from '../../ducks/stocks';
-
-import data from '../../../data/data.json';
-{data.map(() => 'args!\n')}
-
 
 class StockApp extends Component {
   static propTypes = {
@@ -37,7 +31,7 @@ class StockApp extends Component {
       <div>
         <Table />
         <input value={stock} onChange={(event) => this.setState({ stock: event.target.value })} type="text" name="firstname" /><br />
-        <Button bsStyle="primary" onClick={() => this.props.loadBorsdata(stock)}>Load</Button>
+        {/*<Button bsStyle="primary" onClick={() => this.props.loadBorsdata(stock)}>Load</Button>*/}
         <BarChart width={400} height={400} stockYield={yieldArray} />
       </div>
     );
