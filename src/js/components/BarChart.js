@@ -32,7 +32,7 @@ const DatamodelGraph = React.createClass({
     const { data, width, height } = this.props;
     // console.log('the data', data);
 
-    console.log('data', data);
+    // console.log('data', data);
 
     const faux = this.connectFauxDOM('div.renderedD3', 'chart');
     // set the dimensions and margins of the diagram
@@ -61,7 +61,7 @@ const DatamodelGraph = React.createClass({
     const scale = height / (max - min);
     const zero = height/2; // - scale*(max - min)/2;
 
-    console.log('max', max, 'min', min, 'zero', zero);
+    // console.log('max', max, 'min', min, 'zero', zero);
 
     svg.selectAll("rect").
       data(data).
@@ -93,7 +93,7 @@ const DatamodelGraph = React.createClass({
 
     const draw = this.drawFauxDOM;
     function dragged(d) {
-      console.log('event', d);
+      // console.log('event', d);
       // d.x = event.x;
       // d.y = event.y;
       box.attr("x", event.x)

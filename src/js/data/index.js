@@ -8,9 +8,9 @@ function earningsEstimate(earnings) {
   return [bias, [bias, slop, cov]];
 }
 
-console.log('data', data);
-console.log('companyNames', companyNames);
-console.log('screener', screener);
+// console.log('data', data);
+// console.log('companyNames', companyNames);
+// console.log('screener', screener);
 
 const mergeData = companyNames.map((company, index) => {
   const price = screener.find(screenerCompany => screenerCompany.ShortName === company.ShortName).KpisValues[1].NumValue;
@@ -23,9 +23,9 @@ const mergeData = companyNames.map((company, index) => {
     params,
     lsEarnings: estimate / price
   };
-}).sort((c1, c2) => c2.lsEarnings - c1.lsEarnings)
-  .filter((c, index) => index < 100);
+}).sort((c1, c2) => c2.lsEarnings - c1.lsEarnings);
+  // .filter((c, index) => index < 100);
 
-console.log('mergeData', mergeData);
+// console.log('mergeData', mergeData);
 
 export default mergeData;
