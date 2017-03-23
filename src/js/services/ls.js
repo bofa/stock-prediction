@@ -15,5 +15,5 @@ export function leastSquarceEstimate(values) {
   var slope = sstx / sstt;
   var variance = (ssxx - slope * sstx) / (N - 2);
 
-  return [[mx - slope*mt + N*slope, slope, Math.sqrt(variance)]];
+  return [mx - slope*mt + N*slope, slope, Math.sqrt(variance)];
 }

@@ -25,13 +25,10 @@ class StockApp extends Component {
     // console.log('yieldArray', stocks.toJS());
     const yieldArray = stocks.getIn([stock, 5, 'Sparkline'], new List());
 
-    console.log('this.state', this.state);
-
     return (
       <div>
         <Table />
         <input value={stock} onChange={(event) => this.setState({ stock: event.target.value })} type="text" name="firstname" /><br />
-        {/*<Button bsStyle="primary" onClick={() => this.props.loadBorsdata(stock)}>Load</Button>*/}
         <BarChart width={400} height={400} stockYield={yieldArray} />
       </div>
     );
