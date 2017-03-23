@@ -28,10 +28,11 @@ const DatamodelGraph = React.createClass({
     // this.props.init();
   },
 
-  componentWillReceiveProps(nextProps) {
-
-    const { stockYield, width, height } = nextProps;
+  componentDidMount() {
+    const { data, width, height } = this.props;
     // console.log('the data', data);
+
+    console.log('data', data);
 
     const faux = this.connectFauxDOM('div.renderedD3', 'chart');
     // set the dimensions and margins of the diagram
@@ -44,25 +45,35 @@ const DatamodelGraph = React.createClass({
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    const data = stockYield;
+    // const data = stockYield;
 
     var barWidth = 15;
     // var width = (barWidth + 10) * data.length;
     // var height = 200;
 
     var x = d3.scaleLinear().domain([0, data.length]).range([0, width]);
-    var y = d3.scaleLinear().domain([0, d3.max(data, function(datum) { return datum.yield; })]).
-      rangeRound([0, height]);
+    var y = d3.scaleLinear().domain([d3.min(data, function(datum) { return datum.yield; }), d3.max(data, function(datum) { return datum.yield; })])
+      // rangeRound([-height/2, height/2]);
+
+    const max = Math.max(0, ...data.map(p => p.yield));
+    const min = Math.min(0, ...data.map(p => p.yield));
+
+    const scale = height / (max - min);
+    const zero = height/2; // - scale*(max - min)/2;
+
+    console.log('max', max, 'min', min, 'zero', zero);
 
     svg.selectAll("rect").
       data(data).
       enter().
       append("svg:rect").
       attr("x", function(datum, index) { return x(index); }).
-      attr("y", function(datum) { return height - y(datum.yield); }).
-      attr("height", function(datum) { return y(datum.yield); }).
+      attr("y", function(datum) { return datum.yield > 0 ? zero - scale*datum.yield : zero; }).
+      attr("height", function(datum) { return scale*Math.abs(datum.yield); }).
+      // attr("y", function(datum) { return 0; }).
+      // attr("height", function(datum) { return height/2; }).
       attr("width", barWidth).
-      attr("fill", "#2d578b");
+      attr("fill", datum => datum.yield > 0 ? "#2d578b" : "#ff0000");
 
     // Dragabel box
     var box = svg.append("rect")
@@ -97,6 +108,7 @@ const DatamodelGraph = React.createClass({
     }
 
     // this.animateFauxDOM(1000000000000);
+    return true;
   },
 
   render() {
@@ -105,7 +117,7 @@ const DatamodelGraph = React.createClass({
         {this.state.chart}
       </div>
     );
-  },
+  }
 });
 
 export default DatamodelGraph;
