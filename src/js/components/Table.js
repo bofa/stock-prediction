@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
-
+import { leastSquares } from '../services/ls';
 import data from '../../data/data.json';
 import { data as companyNames } from '../../data/companies.json';
 // {data.map(() => 'args!\n')}
@@ -10,8 +10,9 @@ console.log('companyNames', companyNames);
 
 const mergeData = companyNames.map((company, index) => ({
   ...company,
-  history: data[index]
-}))
+  history: data[index],
+  lsEarnings: data[index]
+}));
 
 console.log('mergeData', mergeData);
 
