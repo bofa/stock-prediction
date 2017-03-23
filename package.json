@@ -33,7 +33,8 @@
     "jscs": "jscs src/js/",
     "test": "mocha --compilers js:babel-core/register,css:./test/unit/cssNullCompiler.js --require ./test/unit/testHelper.js --recursive ./test/unit",
     "test:watch": "npm run test -- --watch",
-    "deploy": "npm run build & git add build/ & git commit -m \"new build\" & git subtree push --prefix build origin gh-pages"
+    "deploy": "npm run build & git add build/ & git commit -m \"new build\" & git subtree push --prefix build origin gh-pages",
+    "rmpages": "git push origin --delete gh-pages"
   },
   "devDependencies": {
     "babel-core": "6.7.7",
@@ -43,7 +44,6 @@
     "babel-preset-react": "6.5.0",
     "babel-preset-stage-0": "6.5.0",
     "chai": "3.5.0",
-    "chai-jquery": "2.0.0",
     "cheerio": "0.20.0",
     "colors": "1.1.2",
     "copy-webpack-plugin": "2.1.3",
@@ -54,7 +54,6 @@
     "extract-text-webpack-plugin": "1.0.1",
     "file-loader": "0.8.5",
     "gh-pages": "0.12.0",
-    "jquery": "2.2.2",
     "jscs": "2.10.1",
     "jsdom": "8.2.0",
     "mocha": "2.4.5",

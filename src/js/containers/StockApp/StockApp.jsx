@@ -10,10 +10,6 @@ import 'react-vis/dist/main.scss';
 
 import { loadBorsdata } from '../../ducks/stocks';
 
-import data from '../../../data/data.json';
-{data.map(() => 'args!\n')}
-
-
 class StockApp extends Component {
   static propTypes = {
     loadBorsdata: PropTypes.func.isRequired,
