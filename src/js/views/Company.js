@@ -10,10 +10,15 @@ export default class Company extends Component {
     params: PropTypes.object.isRequired
   };
 
+  state = {
+    manipulableLine: [0, 0]
+  }
+
   render () {
     const shortName = this.props.params.company;
     const companyData = data.find(company => company.ShortName === shortName);
     const earnings = companyData.history[5].Sparkline;
+    const { manipulableLine } = this.state;
 
     console.log('companyData', companyData);
     console.log('earnings', earnings);
@@ -24,7 +29,14 @@ export default class Company extends Component {
           <Link to='/stock-prediction'>Back </Link>
           {companyData.Name}
         </h1>
-        <BarChart width={400} height={400} data={earnings} />
+        <BarChart
+          width={400}
+          height={400}
+          bars={companyData.earnings}
+          line={companyData.lsParams}
+          manipulableLine={manipulableLine}
+          onChange={manipulableLine => this.setState({ manipulableLine })}
+        />
         <hr />
         <Link to='/stock-prediction'>Back To Home View</Link>
       </div>

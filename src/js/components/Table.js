@@ -32,7 +32,7 @@ export default class App extends Component {
                 </a>
               </TableRowColumn>
               <TableRowColumn>{Math.round(100 * company.avgDividendRatio)}%</TableRowColumn>
-              <TableRowColumn><Link to={`/stock-prediction/company/${company.ShortName}`} >{Math.round(100 * company.lsEarnings)}%</Link></TableRowColumn>
+              <TableRowColumn><Link to={`/stock-prediction/company/${company.ShortName}`} >{Math.round(100 * company.estimate)}%</Link></TableRowColumn>
             </TableRow>
           ))}
         </TableBody>
