@@ -28,8 +28,6 @@ class StockApp extends Component {
     return (
       <div>
         <Table />
-        <input value={stock} onChange={(event) => this.setState({ stock: event.target.value })} type="text" name="firstname" /><br />
-        <BarChart width={400} height={400} stockYield={yieldArray} />
       </div>
     );
 

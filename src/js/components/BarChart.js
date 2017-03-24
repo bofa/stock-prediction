@@ -28,8 +28,12 @@ const DatamodelGraph = React.createClass({
     // this.props.init();
   },
 
-  componentDidMount() {
-    const { data, width, height } = this.props;
+  componentWillReceiveProps(nextProps) {
+    const { data, width, height } = nextProps;
+
+    // if (!data) {
+    //   return;
+    // }
     // console.log('the data', data);
 
     // console.log('data', data);
@@ -59,9 +63,9 @@ const DatamodelGraph = React.createClass({
     const min = Math.min(0, ...data.map(p => p.yield));
 
     const scale = height / (max - min);
-    const zero = height/2; // - scale*(max - min)/2;
+    const zero = height * max / (max - min);
 
-    // console.log('max', max, 'min', min, 'zero', zero);
+    console.log('max', max, 'min', min, 'zero', zero, 'scale', scale);
 
     svg.selectAll("rect").
       data(data).
@@ -108,7 +112,10 @@ const DatamodelGraph = React.createClass({
     }
 
     // this.animateFauxDOM(1000000000000);
-    return true;
+  },
+
+  componentDidMount() {
+    this.componentWillReceiveProps(this.props);
   },
 
   render() {

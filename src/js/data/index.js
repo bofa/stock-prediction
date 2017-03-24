@@ -43,7 +43,7 @@ const avgDividendRatio = dividend
 })
 // .filter((c1) => c1.avgDividendRatio)
 // .sort((c1, c2) => c2.avgDividendRatio - c1.avgDividendRatio)
-.filter(c1 => !c1.earnings.find(e => e.yield < 0))
+// .filter(c1 => !c1.earnings.find(e => e.yield < 0))
 .sort((c1, c2) => c2.lsEarnings - c1.lsEarnings)
 // .filter((c, index) => index < 100);
 

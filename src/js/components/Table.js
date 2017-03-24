@@ -11,17 +11,26 @@ export default class App extends Component {
   render() {
     return (
       <Table>
-        <TableHeader>
+        <TableHeader
+          displaySelectAll={false}
+          adjustForCheckbox={false}
+        >
           <TableRow>
             <TableHeaderColumn>Name</TableHeaderColumn>
             <TableHeaderColumn>Avg Dividend Ratio</TableHeaderColumn>
             <TableHeaderColumn>Estimated Return</TableHeaderColumn>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody
+          displayRowCheckbox={false}
+        >
           {data.map((company, key) => (
             <TableRow key={key} >
-              <TableRowColumn>{company.Name}</TableRowColumn>
+              <TableRowColumn>
+                <a href={`https://borsdata.se/${company.CountryUrlName}/nyckeltal`} target="_blank">
+                  {company.Name}
+                </a>
+              </TableRowColumn>
               <TableRowColumn>{Math.round(100 * company.avgDividendRatio)}%</TableRowColumn>
               <TableRowColumn><Link to={`/stock-prediction/company/${company.ShortName}`} >{Math.round(100 * company.lsEarnings)}%</Link></TableRowColumn>
             </TableRow>
