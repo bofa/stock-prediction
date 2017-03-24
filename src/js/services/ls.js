@@ -15,5 +15,23 @@ export function leastSquarceEstimate(values) {
   var slope = sstx / sstt;
   var variance = (ssxx - slope * sstx) / (N - 2);
 
-  return [mx - slope*mt + N*slope, slope, Math.sqrt(variance)];
+  return [mx - slope*mt + (N-1)*slope, slope, Math.sqrt(variance)];
+}
+
+export default function earningsEstimate(company, projectionTime) {
+  // console.log('company', company);
+
+  const { dividend, earnings } = company;
+
+  const avgDividendRatio = dividend
+    .map((d, i) => d.yield / earnings[i].yield)
+    .filter(dividendRatio => dividendRatio > 0 && dividendRatio < 2)
+    .reduce((out, ratio, i, array) => out + ratio/array.length, 0);
+
+  const [bias, slop, cov] = leastSquarceEstimate(earnings
+    .map(spark => spark.yield)
+    .filter(value => value !== 0)
+  );
+
+  return [avgDividendRatio*(bias + projectionTime*slop/2), [bias, slop, cov]];
 }

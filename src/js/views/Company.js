@@ -23,6 +23,9 @@ export default class Company extends Component {
     console.log('companyData', companyData);
     console.log('earnings', earnings);
 
+    console.log('manipulableLine', manipulableLine);
+    console.log('companyData.lsParams', companyData.lsParams);
+
     return (
       <div>
         <h1>
