@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, IndexRoute, Redirect } from 'react-router';
 
 import App from './App';
-import StockApp from './containers/StockApp/StockApp';
+import StockApp from './containers/StockApp';
 import Company from './views/Company';
 import NotFoundView from './views/NotFoundView';
 

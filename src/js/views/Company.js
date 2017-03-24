@@ -1,30 +1,39 @@
 import React, { Component, PropTypes } from 'react';
 import { Link } from 'react-router';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import BarChart from '../components/BarChart';
 import data from '../data';
+import { mergeCompany } from '../ducks/stocks';
 
 // const yieldArray = stocks.getIn([stock, 5, 'Sparkline'], new List());
 
-export default class Company extends Component {
+class View extends Component {
   static propTypes = {
-    params: PropTypes.object.isRequired
+    params: PropTypes.object.isRequired,
+    stocks: PropTypes.object.isRequired,
+    mergeCompany: PropTypes.func.isRequired
   };
 
-  state = {
-    manipulableLine: [0, 0]
+  setCompany = (manipulableLine) => {
+    const shortName = this.props.params.company;
+    this.props.mergeCompany(shortName, {
+      lsParams: manipulableLine
+    });
   }
 
   render () {
+    const { stocks } = this.props;
     const shortName = this.props.params.company;
-    const companyData = data.find(company => company.ShortName === shortName);
-    const earnings = companyData.history[5].Sparkline;
-    const { manipulableLine } = this.state;
+    const companyData = data.find(company => company.get('ShortName') === shortName);
+    const earnings = companyData.getIn(['history', 5, 'Sparkline']);
+    const lsParams = companyData.get('lsParams');
 
-    console.log('companyData', companyData);
-    console.log('earnings', earnings);
+    // console.log('companyData', companyData);
+    // console.log('earnings', earnings);
 
-    console.log('manipulableLine', manipulableLine);
-    console.log('companyData.lsParams', companyData.lsParams);
+    // console.log('manipulableLine', stocks.get('lsParams'));
+    // console.log('companyData.lsParams', companyData.lsParams);
 
     return (
       <div>
@@ -35,10 +44,10 @@ export default class Company extends Component {
         <BarChart
           width={400}
           height={400}
-          bars={companyData.earnings}
-          line={companyData.lsParams}
-          manipulableLine={manipulableLine}
-          onChange={manipulableLine => this.setState({ manipulableLine })}
+          bars={earnings.toJS()}
+          line={lsParams.toJS()}
+          manipulableLine={lsParams.toJS()}
+          onChange={this.setCompany}
         />
         <hr />
         <Link to='/stock-prediction'>Back To Home View</Link>
@@ -46,3 +55,17 @@ export default class Company extends Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    stocks: state.stockReducer
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    mergeCompany: bindActionCreators(mergeCompany, dispatch)
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(View);

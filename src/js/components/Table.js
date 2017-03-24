@@ -1,14 +1,15 @@
 import React, { Component, PropTypes } from 'react';
-import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
+import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
 import { Link } from 'react-router';
-import data from '../data';
 
 export default class App extends Component {
   static propTypes = {
-    children: PropTypes.element.isRequired
+    companys: PropTypes.object.isRequired
   };
 
   render() {
+    const { companys } = this.props;
+
     return (
       <Table>
         <TableHeader
@@ -24,15 +25,15 @@ export default class App extends Component {
         <TableBody
           displayRowCheckbox={false}
         >
-          {data.map((company, key) => (
+          {companys.map((company, key) => (
             <TableRow key={key} >
               <TableRowColumn>
-                <a href={`https://borsdata.se/${company.CountryUrlName}/nyckeltal`} target="_blank">
-                  {company.Name}
+                <a href={`https://borsdata.se/${company.get('CountryUrlName')}/nyckeltal`} target="_blank">
+                  {company.get('Name')}
                 </a>
               </TableRowColumn>
-              <TableRowColumn>{Math.round(100 * company.avgDividendRatio)}%</TableRowColumn>
-              <TableRowColumn><Link to={`/stock-prediction/company/${company.ShortName}`} >{Math.round(100 * company.estimate)}%</Link></TableRowColumn>
+              <TableRowColumn>{Math.round(100 * company.get('avgDividendRatio'))}%</TableRowColumn>
+              <TableRowColumn><Link to={`/stock-prediction/company/${company.get('ShortName')}`} >{Math.round(100 * company.get('estimate'))}%</Link></TableRowColumn>
             </TableRow>
           ))}
         </TableBody>

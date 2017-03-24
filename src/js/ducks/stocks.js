@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { fromJS, Map } from 'immutable';
+import { fromJS, OrderedMap } from 'immutable';
 
 // import { data as companies } from '../../data/companies.json';
 
@@ -43,11 +43,20 @@ const initialState = fromJS({
 
 export const STOCK_APP_SET_TIME_DURATION = 'STOCK_APP_SET_TIME_DURATION';
 export const STOCK_APP_LOAD_DATA = 'STOCK_APP_LOAD_DATA';
+const STOCK_MERGE_COMPANY = 'STOCK_SET_COMPANY';
 
 export function setTimeDuration(duration) {
   return {
     type: STOCK_APP_SET_TIME_DURATION,
     duration
+  };
+}
+
+export function mergeCompany(shortName, company) {
+  return {
+    type: STOCK_MERGE_COMPANY,
+    shortName,
+    company
   };
 }
 
@@ -91,9 +100,15 @@ export function loadBorsdata(name) {
 
 export default function (state = initialState, action) {
   switch (action.type) {
+
     case STOCK_APP_LOAD_DATA: {
       return state.set(action.name, action.data);
     }
+
+    case STOCK_MERGE_COMPANY: {
+      return state.mergeIn([action.shortName], fromJS(action.company));
+    }
+
     default:
       return state;
   }

@@ -19,19 +19,8 @@ export function leastSquarceEstimate(values) {
 }
 
 export default function earningsEstimate(company, projectionTime) {
-  // console.log('company', company);
+  const { lsParams, avgDividendRatio, price } = company.toJS();
+  const [bias, slop, cov] = lsParams;
 
-  const { dividend, earnings } = company;
-
-  const avgDividendRatio = dividend
-    .map((d, i) => d.yield / earnings[i].yield)
-    .filter(dividendRatio => dividendRatio > 0 && dividendRatio < 2)
-    .reduce((out, ratio, i, array) => out + ratio/array.length, 0);
-
-  const [bias, slop, cov] = leastSquarceEstimate(earnings
-    .map(spark => spark.yield)
-    .filter(value => value !== 0)
-  );
-
-  return [avgDividendRatio*(bias + projectionTime*slop/2), [bias, slop, cov]];
+  return avgDividendRatio*(bias + projectionTime*slop/2) / price;
 }

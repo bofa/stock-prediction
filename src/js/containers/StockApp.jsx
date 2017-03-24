@@ -2,11 +2,12 @@ import { List } from 'immutable';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import BarChart from '../../components/BarChart';
-import Table from '../../components/Table';
+import Table from '../components/Table';
 import 'react-vis/dist/main.scss';
+import companys from '../data';
+import earningsEstimate from '../services/ls';
 
-import { loadBorsdata } from '../../ducks/stocks';
+import { loadBorsdata } from '../ducks/stocks';
 
 class StockApp extends Component {
   static propTypes = {
@@ -25,9 +26,18 @@ class StockApp extends Component {
     // console.log('yieldArray', stocks.toJS());
     const yieldArray = stocks.getIn([stock, 5, 'Sparkline'], new List());
 
+    console.log('companys', companys.toJS(), 'stocks', stocks.toJS());
+
+    const companysMerge = companys.mergeDeep(stocks)
+      .map(company => company.set('estimate', earningsEstimate(company, 3)))
+      .toList()
+      .sortBy(company => -company.get('estimate'));
+
+    console.log('companysMerge', companysMerge.toJS());
+
     return (
       <div>
-        <Table />
+        <Table companys={companysMerge} />
       </div>
     );
 
