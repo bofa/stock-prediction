@@ -1,8 +1,4 @@
-# React + Redux w/ ES6 and react-vis (D3) Starter Project
-
-A boilerplate using React, Redux, webpack + hot module reloading, and ES6 + JSX via Babel.
-
-The provided boilerplate enables client-side ES6 via the following technologies:
+# Nordic stock prediction portal
 
 - [react-vis](https://github.com/uber/react-vis)
 - [webpack](http://webpack.github.io/) and [webpack-dev-server](https://webpack.github.io/docs/webpack-dev-server.html) as a client-side module builder and module loader.
@@ -21,16 +17,8 @@ The provided boilerplate enables client-side ES6 via the following technologies:
 ### Installation
 
 ```
-$ git clone https://github.com/manishshanker/react-redux-d3-webpack-es6-seed.git app-name
-$ cd app-name
 $ npm install
 ```
-
-### White Label It
-
-- Update name, description, author, repository in `package.json`
-- Update app title in `src/index.html`
-
 
 ## Development
 
@@ -59,16 +47,6 @@ To run unit tests continuously during development (watch tests), use:
 npm run test:watch
 ```
 
-## FAQ
-
-### What's this for?
-
-This starter kit implements best practices like testing (`unit testing`), minification, bundling, and so on. It saves you from the long, painful process of wiring it all together into an automated dev environment and build process.
-
-### What's happening under the hood when I run `npm start`?
-
-Webpack serves your app in memory when you run `npm start`. No physical files are written. However, the web root is /src, so you can reference files under /src in index.html. When the app is built using `npm run build`, physical files are written to `/build` folder and the app is served from `/build`.
-
 ### How is Sass being processed?
 
 We're handling it differently in DEV vs PROD.
@@ -96,6 +74,3 @@ When you run `npm run build`:
 - Sets NODE_ENV to `production` so that React is built in production mode
 - Places the resulting built project files into `/build` directory. (This is the folder you'll expose to the world).
 
-## Credits
-
-- Based on Nick S. Plekhanov - redux seed
