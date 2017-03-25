@@ -53,8 +53,17 @@ const DatamodelGraph = React.createClass({
     var x = d3.scaleLinear().domain([0, bars.length]).range([0, width]);
     // var y = d3.scaleLinear().domain([d3.min(bars, function(datum) { return datum.yield; }), d3.max(bars, function(datum) { return datum.yield; })]);
 
-    const max = Math.max(0, ...bars.map(p => p.yield));
-    const min = Math.min(0, ...bars.map(p => p.yield));
+    const timeLsEstimate1 = 0;
+    const timeLsEstimate2 = 9;
+
+    const originalValueLsEstimate1 = line[0] - line[1]*9;
+    const originalValueLsEstimate2 = line[0] - line[1]*0;
+
+    const valueLsEstimate1 = manipulableLine[0] - manipulableLine[1]*9;
+    const valueLsEstimate2 = manipulableLine[0] - manipulableLine[1]*0;
+
+    const max = Math.max(0, valueLsEstimate1, valueLsEstimate2, ...bars.map(p => p.yield));
+    const min = Math.min(0, valueLsEstimate1, valueLsEstimate2, ...bars.map(p => p.yield));
 
     const extended = 1.05;
     const scale = height / (max - min) / extended;
@@ -80,10 +89,10 @@ const DatamodelGraph = React.createClass({
     // Draw line
     //Draw the line
     svg.append("line")
-      .attr("x1", x(0) )
-      .attr("y1", y(line[0] - line[1]*9))
-      .attr("x2", x(9))
-      .attr("y2", y(line[0]))
+      .attr("x1", x(timeLsEstimate1) )
+      .attr("y1", y(originalValueLsEstimate1))
+      .attr("x2", x(timeLsEstimate2))
+      .attr("y2", y(originalValueLsEstimate2))
       .attr("stroke-width", 2)
       .attr("stroke", "black");
 
@@ -112,33 +121,21 @@ const DatamodelGraph = React.createClass({
 
     var box1 = svg.append("rect")
       .datum({x: 0, y: 0})
-      .attr("x", x(0))
-      .attr("y", y(manipulableLine[0] - manipulableLine[1]*9))
+      .attr("x", x(timeLsEstimate1))
+      .attr("y", y(valueLsEstimate1))
       .attr("width", 10)
       .attr("height", 10)
       .call(d3.drag()
-        // .on("start", dragstarted)
         .on("drag", () => dragged(box1)));
-        // .on("end", dragended));
 
     var box2 = svg.append("rect")
       .datum({x: 0, y: 0})
-      .attr("x", x(9))
-      .attr("y", y(manipulableLine[0] - manipulableLine[1]*0))
+      .attr("x", x(timeLsEstimate2))
+      .attr("y", y(valueLsEstimate2))
       .attr("width", 10)
       .attr("height", 10)
       .call(d3.drag()
-        // .on("start", dragstarted)
         .on("drag", () => dragged(box2)));
-        // .on("end", dragended));
-
-    // function dragstarted() {
-    //   box1.classed("dragging", true);
-    // }
-
-    // function dragended() {
-    //   box1.classed("dragging", false);
-    // }
 
     // this.animateFauxDOM(1000000000000);
   },

@@ -18,6 +18,7 @@ export default class App extends Component {
         >
           <TableRow>
             <TableHeaderColumn>Name</TableHeaderColumn>
+            <TableHeaderColumn>Price</TableHeaderColumn>
             <TableHeaderColumn>Avg Dividend Ratio</TableHeaderColumn>
             <TableHeaderColumn>Estimated Return</TableHeaderColumn>
           </TableRow>
@@ -32,6 +33,7 @@ export default class App extends Component {
                   {company.get('Name')}
                 </a>
               </TableRowColumn>
+              <TableRowColumn>{company.get('price')}</TableRowColumn>
               <TableRowColumn>{Math.round(100 * company.get('avgDividendRatio'))}%</TableRowColumn>
               <TableRowColumn><Link to={`/stock-prediction/company/${company.get('ShortName')}`} >{Math.round(100 * company.get('estimate'))}%</Link></TableRowColumn>
             </TableRow>

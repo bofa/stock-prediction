@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import BarChart from '../components/BarChart';
 import data from '../data';
 import { mergeCompany } from '../ducks/stocks';
+import { Map } from 'immutable';
 
 // const yieldArray = stocks.getIn([stock, 5, 'Sparkline'], new List());
 
@@ -25,27 +26,26 @@ class View extends Component {
   render () {
     const { stocks } = this.props;
     const shortName = this.props.params.company;
-    const companyData = data.find(company => company.get('ShortName') === shortName);
-    const earnings = companyData.getIn(['history', 5, 'Sparkline']);
-    const lsParams = companyData.get('lsParams');
+    const staticStockData = data.get(shortName);
+    const dynamicStockData = stocks.get(shortName, Map());
 
-    // console.log('companyData', companyData);
-    // console.log('earnings', earnings);
+    const earnings = staticStockData.get('earnings');
+    const originalLsFit = staticStockData.get('lsParams');
 
-    // console.log('manipulableLine', stocks.get('lsParams'));
-    // console.log('companyData.lsParams', companyData.lsParams);
+    const compbinedData = staticStockData.mergeDeep(dynamicStockData);
+    const lsParams = compbinedData.get('lsParams');
 
     return (
       <div>
         <h1>
-          <Link to='/stock-prediction'>Back </Link>
-          {companyData.Name}
+          <Link to='/stock-prediction'>Back</Link>
+          {' ' + staticStockData.get('Name')}
         </h1>
         <BarChart
           width={400}
           height={400}
           bars={earnings.toJS()}
-          line={lsParams.toJS()}
+          line={originalLsFit.toJS()}
           manipulableLine={lsParams.toJS()}
           onChange={this.setCompany}
         />
