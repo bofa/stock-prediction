@@ -23,6 +23,13 @@ class View extends Component {
     });
   }
 
+  setCompanyRevenue = (manipulableLine) => {
+    const shortName = this.props.params.company;
+    this.props.mergeCompany(shortName, {
+      revenueLs: manipulableLine
+    });
+  }
+
   render () {
     const { stocks } = this.props;
     const shortName = this.props.params.company;
@@ -51,7 +58,7 @@ class View extends Component {
           bars={revenue.toJS()}
           line={revenueLsStatic.toJS()}
           manipulableLine={revenueLs.toJS()}
-          onChange={this.setCompany}
+          onChange={this.setCompanyRevenue}
         />
         <BarChart
           width={400}

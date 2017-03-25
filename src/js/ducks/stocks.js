@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { fromJS, OrderedMap } from 'immutable';
+import LS from 'local-storage';
 
 // import { data as companies } from '../../data/companies.json';
 
@@ -35,11 +36,10 @@ const currentYear = 2017;
 //   ).toJS())
 // ).then(console.log);
 
+const storageJson = LS.get('stocks');
+const localStorage = storageJson ? JSON.parse(storageJson) : {};
 
-
-const initialState = fromJS({
-
-});
+const initialState = fromJS(localStorage);
 
 export const STOCK_APP_SET_TIME_DURATION = 'STOCK_APP_SET_TIME_DURATION';
 export const STOCK_APP_LOAD_DATA = 'STOCK_APP_LOAD_DATA';
@@ -99,17 +99,19 @@ export function loadBorsdata(name) {
 }
 
 export default function (state = initialState, action) {
-  switch (action.type) {
+  let newState = state;
 
+  switch (action.type) {
     case STOCK_APP_LOAD_DATA: {
-      return state.set(action.name, action.data);
-    }
+      newState = state.set(action.name, action.data);
+    } break;
 
     case STOCK_MERGE_COMPANY: {
-      return state.mergeIn([action.shortName], fromJS(action.company));
-    }
-
-    default:
-      return state;
+      newState = state.mergeIn([action.shortName], fromJS(action.company));
+    } break;
   }
+
+  LS('stocks', JSON.stringify(newState));
+
+  return newState;
 }
