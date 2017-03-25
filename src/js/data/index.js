@@ -15,13 +15,19 @@ const mergeData = companyNames.map((company, index) => {
 
   const dividend = data[index][4].Sparkline;
   const earnings = data[index][5].Sparkline;
+  const revenue = data[index][6].Sparkline;
 
   const avgDividendRatio = dividend
     .map((d, i) => d.yield / earnings[i].yield)
     .filter(dividendRatio => dividendRatio > 0 && dividendRatio < 2)
     .reduce((out, ratio, i, array) => out + ratio/array.length, 0);
 
-  const lsParams = leastSquarceEstimate(earnings
+  const earningsLs = leastSquarceEstimate(earnings
+    .map(spark => spark.yield)
+    .filter(value => value !== 0)
+  );
+
+  const revenueLs = leastSquarceEstimate(revenue
     .map(spark => spark.yield)
     .filter(value => value !== 0)
   );
@@ -33,7 +39,9 @@ const mergeData = companyNames.map((company, index) => {
     avgDividendRatio,
     dividend,
     earnings,
-    lsParams
+    earningsLs,
+    revenue,
+    revenueLs
   };
 })
 // .filter((c1) => c1.avgDividendRatio)
@@ -41,10 +49,11 @@ const mergeData = companyNames.map((company, index) => {
 // .filter(c1 => !c1.earnings.find(e => e.yield < 0))
 // .filter(c => !isNaN(c.estimate))
 // .sort((c1, c2) => c2.estimate - c1.estimate)
+// .map(company => { console.log(company); return company; })
 .map(v => [v.ShortName, fromJS(v)])
 // .filter((c, index) => index < 100);
 
-// console.log('mergeData', mergeData);
+
 // const fromJS(mergeData)
 
 export default Map(mergeData);

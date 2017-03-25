@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
 import { Link } from 'react-router';
+import bdIcon from '../../images/bd.png';
 
 export default class App extends Component {
   static propTypes = {
@@ -30,8 +31,9 @@ export default class App extends Component {
             <TableRow key={key} >
               <TableRowColumn>
                 <a href={`https://borsdata.se/${company.get('CountryUrlName')}/nyckeltal`} target="_blank">
-                  {company.get('Name')}
+                  <img border="0" alt="W3Schools" src={bdIcon} />
                 </a>
+                {company.get('Name')}
               </TableRowColumn>
               <TableRowColumn>{company.get('price')}</TableRowColumn>
               <TableRowColumn>{Math.round(100 * company.get('avgDividendRatio'))}%</TableRowColumn>

@@ -16,10 +16,10 @@ class View extends Component {
     mergeCompany: PropTypes.func.isRequired
   };
 
-  setCompany = (manipulableLine) => {
+  setCompanyEarnings = (manipulableLine) => {
     const shortName = this.props.params.company;
     this.props.mergeCompany(shortName, {
-      lsParams: manipulableLine
+      earningsLs: manipulableLine
     });
   }
 
@@ -28,12 +28,16 @@ class View extends Component {
     const shortName = this.props.params.company;
     const staticStockData = data.get(shortName);
     const dynamicStockData = stocks.get(shortName, Map());
+    const compbinedData = staticStockData.mergeDeep(dynamicStockData);
 
     const earnings = staticStockData.get('earnings');
-    const originalLsFit = staticStockData.get('lsParams');
+    const earningsLsStatic = staticStockData.get('earningsLs');
+    const earningsLs = compbinedData.get('earningsLs');
 
-    const compbinedData = staticStockData.mergeDeep(dynamicStockData);
-    const lsParams = compbinedData.get('lsParams');
+    const revenue = staticStockData.get('revenue');
+    const revenueLsStatic = staticStockData.get('revenueLs');
+    const revenueLs = staticStockData.get('revenueLs');
+
 
     return (
       <div>
@@ -44,10 +48,18 @@ class View extends Component {
         <BarChart
           width={400}
           height={400}
-          bars={earnings.toJS()}
-          line={originalLsFit.toJS()}
-          manipulableLine={lsParams.toJS()}
+          bars={revenue.toJS()}
+          line={revenueLsStatic.toJS()}
+          manipulableLine={revenueLs.toJS()}
           onChange={this.setCompany}
+        />
+        <BarChart
+          width={400}
+          height={400}
+          bars={earnings.toJS()}
+          line={earningsLsStatic.toJS()}
+          manipulableLine={earningsLs.toJS()}
+          onChange={this.setCompanyEarnings}
         />
         <hr />
         <Link to='/stock-prediction'>Back To Home View</Link>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, IndexRoute, Redirect } from 'react-router';
 
 import App from './App';
-import StockApp from './containers/StockApp';
+import Index from './views/Index';
 import Company from './views/Company';
 import NotFoundView from './views/NotFoundView';
 
@@ -47,7 +47,7 @@ import NotFoundView from './views/NotFoundView';
 
 export default (
   <Route path="/stock-prediction" component={App} /*onEnter={checkForRedirect}*/>
-    <IndexRoute component={StockApp} />
+    <IndexRoute component={Index} />
     <Route path="company/:company" component={Company} />
     <Route path="404" component={NotFoundView} />
     <Redirect from="*" to="404" />

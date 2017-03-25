@@ -19,8 +19,8 @@ export function leastSquarceEstimate(values) {
 }
 
 export default function earningsEstimate(company, projectionTime) {
-  const { lsParams, avgDividendRatio, price } = company.toJS();
-  const [bias, slop, cov] = lsParams;
+  const { earningsLs, avgDividendRatio, price } = company.toJS();
+  const [bias, slop, cov] = earningsLs;
 
   return avgDividendRatio*(bias + projectionTime*slop/2) / price;
 }
