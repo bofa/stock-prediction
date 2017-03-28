@@ -15,12 +15,17 @@ export function leastSquarceEstimate(values) {
   var slope = sstx / sstt;
   var variance = (ssxx - slope * sstx) / (N - 2);
 
-  return [mx - slope*mt + (N-1)*slope, slope, Math.sqrt(variance)];
+  if(N < 6) {
+    return [mx, 0, Math.sqrt(variance)];
+  }
+
+  return [mx - slope*mt + (N-1)*slope, slope, Math.sqrt(ssxx)];
 }
 
 export default function earningsEstimate(company, projectionTime) {
   const { earningsLs, avgDividendRatio, price } = company.toJS();
-  const [bias, slop, cov] = earningsLs;
+  const dividendRatio = Math.min(avgDividendRatio, 0.8);
 
-  return avgDividendRatio*(bias + projectionTime*slop/2) / price;
+  const [bias, slop, cov] = earningsLs;
+  return dividendRatio*(bias + projectionTime*slop/2) / price;
 }

@@ -1,4 +1,4 @@
-import earningsEstimate, { leastSquarceEstimate } from '../services/ls';
+import earningsEstimate, { leastSquarceEstimate, calculateMean } from '../services/ls';
 import data from './data.json';
 import { data as companyNames } from './companies.json';
 import { data as screener } from './screener.json';
@@ -17,9 +17,23 @@ const mergeData = companyNames.map((company, index) => {
   const earnings = data[index][5].Sparkline;
   const revenue = data[index][6].Sparkline;
 
+  const historyLength =  earnings
+    .map(spark => spark.yield)
+    .filter(value => value !== 0).size;
+
   const avgDividendRatio = dividend
     .map((d, i) => d.yield / earnings[i].yield)
     .filter(dividendRatio => dividendRatio > 0 && dividendRatio < 2)
+    .reduce((out, ratio, i, array) => out + ratio/array.length, 0);
+
+  const avgEarnings = earnings
+    .map(spark => spark.yield)
+    .filter(value => value !== 0)
+    .reduce((out, ratio, i, array) => out + ratio/array.length, 0);
+
+  const avgRevenue = revenue
+    .map(spark => spark.yield)
+    .filter(value => value !== 0)
     .reduce((out, ratio, i, array) => out + ratio/array.length, 0);
 
   const earningsLs = leastSquarceEstimate(earnings
@@ -35,12 +49,15 @@ const mergeData = companyNames.map((company, index) => {
   return {
     ...company,
     history: data[index],
+    historyLength,
     price,
     avgDividendRatio,
     dividend,
     earnings,
+    avgEarnings,
     earningsLs,
     revenue,
+    avgRevenue,
     revenueLs
   };
 })

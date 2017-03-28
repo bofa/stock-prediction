@@ -7,6 +7,7 @@ import Table from '../components/Table';
 import companys from '../data';
 import earningsEstimate from '../services/ls';
 import { loadBorsdata } from '../ducks/stocks';
+import { setPositiveEarningsGrowth, setPositiveRevenuGrowth } from '../ducks/filter';
 
 // import IconMenu from 'material-ui/IconMenu';
 // import IconButton from 'material-ui/IconButton';
@@ -25,23 +26,21 @@ import Toggle from 'material-ui/Toggle';
 class StockApp extends Component {
   static propTypes = {
     loadBorsdata: PropTypes.func.isRequired,
-    stocks: PropTypes.object.isRequired
+    stocks: PropTypes.object.isRequired,
+    positiveEarningsGrowth: PropTypes.boolean,
+    positiveRevenuGrowth: PropTypes.boolean,
+    setPositiveEarningsGrowth: PropTypes.func,
+    setPositiveRevenuGrowth: PropTypes.func
   };
 
-  state = {
-    positiveEarningsGrowth: true,
-    positiveRevenuGrowth: true
-  }
-
   render() {
-    const { stocks } = this.props;
-    const { positiveEarningsGrowth, positiveRevenuGrowth } = this.state;
+    const { stocks, positiveEarningsGrowth, positiveRevenuGrowth } = this.props;
 
     const companysMerge = companys.mergeDeep(stocks)
       .map(company => company.set('estimate', earningsEstimate(company, 3)))
       .filter(company => !isNaN(company.get('estimate')))
-      .filter(company => positiveEarningsGrowth ? company.getIn(['earningsLs', 1]) > 0 : true)
-      .filter(company => positiveRevenuGrowth ? company.getIn(['revenueLs', 1]) > 0 : true)
+      .filter(company => positiveEarningsGrowth ? company.getIn(['earningsLs', 1]) >= 0 : true)
+      .filter(company => positiveRevenuGrowth ? company.getIn(['revenueLs', 1]) >= 0 : true)
       .toList()
       .sortBy(company => -company.get('estimate'));
 
@@ -54,13 +53,13 @@ class StockApp extends Component {
           <ToolbarGroup>
             <Toggle
               toggled={positiveEarningsGrowth}
-              onToggle={(e, positiveEarningsGrowth) => this.setState({ positiveEarningsGrowth })}
-              label="Earnings Growth"
+              onToggle={(e, value) => this.props.setPositiveEarningsGrowth(value)}
+              label="Positive Earnings Growth"
             />
             <Toggle
               toggled={positiveRevenuGrowth}
-              onToggle={(e, positiveRevenuGrowth) => this.setState({ positiveRevenuGrowth })}
-              label="Revenu Growth"
+              onToggle={(e, active) => this.props.setPositiveRevenuGrowth(active)}
+              label="Positive Revenu Growth"
             />
           </ToolbarGroup>
         </Toolbar>
@@ -72,13 +71,16 @@ class StockApp extends Component {
 
 function mapStateToProps(state) {
   return {
-    stocks: state.stockReducer
+    stocks: state.stockReducer,
+    positiveEarningsGrowth: state.filterReducer.get('positiveEarningsGrowth', true),
+    positiveRevenuGrowth: state.filterReducer.get('positiveRevenuGrowth', true)
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    loadBorsdata: bindActionCreators(loadBorsdata, dispatch)
+    setPositiveEarningsGrowth: bindActionCreators(setPositiveEarningsGrowth, dispatch),
+    setPositiveRevenuGrowth: bindActionCreators(setPositiveRevenuGrowth, dispatch)
   };
 }
 
