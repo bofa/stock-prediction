@@ -6,7 +6,8 @@ import { fromJS } from 'immutable';
 
 const initialState = fromJS({
   positiveEarningsGrowth: true,
-  positiveRevenueGrowth: true
+  positiveRevenuGrowth: true,
+  minHistoryLength: 8
 });
 
 const FILTER_SET_PARAM = 'FILTER_SET_PARAM';
@@ -24,6 +25,14 @@ export function setPositiveRevenuGrowth(active) {
     type: FILTER_SET_PARAM,
     path: ['positiveRevenuGrowth'],
     value: active
+  };
+}
+
+export function setMinHistoryLength(years) {
+  return {
+    type: FILTER_SET_PARAM,
+    path: ['minHistoryLength'],
+    value: years
   };
 }
 

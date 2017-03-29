@@ -13,13 +13,14 @@ const mergeData = companyNames.map((company, index) => {
     .find(screenerCompany => screenerCompany.ShortName === company.ShortName)
     .KpisValues[1].NumValue;
 
+
   const dividend = data[index][4].Sparkline;
   const earnings = data[index][5].Sparkline;
   const revenue = data[index][6].Sparkline;
 
-  const historyLength =  earnings
-    .map(spark => spark.yield)
-    .filter(value => value !== 0).size;
+  const historyLength =  revenue
+    .filter(spark => spark.yield !== 0)
+    .length;
 
   const avgDividendRatio = dividend
     .map((d, i) => d.yield / earnings[i].yield)
@@ -66,7 +67,7 @@ const mergeData = companyNames.map((company, index) => {
 // .filter(c1 => !c1.earnings.find(e => e.yield < 0))
 // .filter(c => !isNaN(c.estimate))
 // .sort((c1, c2) => c2.estimate - c1.estimate)
-// .map(company => { console.log(company); return company; })
+.map(company => { console.log(company); return company; })
 .map(v => [v.ShortName, fromJS(v)])
 // .filter((c, index) => index < 100);
 

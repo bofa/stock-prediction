@@ -4,20 +4,10 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import 'react-vis/dist/main.scss';
 import Table from '../components/Table';
+import Filter from '../components/Filter';
 import companys from '../data';
 import earningsEstimate from '../services/ls';
-import { loadBorsdata } from '../ducks/stocks';
-import { setPositiveEarningsGrowth, setPositiveRevenuGrowth } from '../ducks/filter';
-
-// import IconMenu from 'material-ui/IconMenu';
-// import IconButton from 'material-ui/IconButton';
-// import FontIcon from 'material-ui/FontIcon';
-// import NavigationExpandMoreIcon from 'material-ui/svg-icons/navigation/expand-more';
-// import MenuItem from 'material-ui/MenuItem';
-// import DropDownMenu from 'material-ui/DropDownMenu';
-// import RaisedButton from 'material-ui/RaisedButton';
-import { Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle } from 'material-ui/Toolbar';
-import Toggle from 'material-ui/Toggle';
+import { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength } from '../ducks/filter';
 
 // const buttonStyle = {
 //   margin: 12,
@@ -29,40 +19,39 @@ class StockApp extends Component {
     stocks: PropTypes.object.isRequired,
     positiveEarningsGrowth: PropTypes.boolean,
     positiveRevenuGrowth: PropTypes.boolean,
+    minHistoryLength: PropTypes.integer,
     setPositiveEarningsGrowth: PropTypes.func,
-    setPositiveRevenuGrowth: PropTypes.func
+    setPositiveRevenuGrowth: PropTypes.func,
+    setMinHistoryLength: PropTypes.func
   };
 
   render() {
-    const { stocks, positiveEarningsGrowth, positiveRevenuGrowth } = this.props;
+    const { stocks, positiveEarningsGrowth, positiveRevenuGrowth, minHistoryLength, projectionTime } = this.props;
+    const { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength } = this.props;
 
     const companysMerge = companys.mergeDeep(stocks)
-      .map(company => company.set('estimate', earningsEstimate(company, 3)))
+      .map(company => company.set('estimate', earningsEstimate(company, projectionTime)))
       .filter(company => !isNaN(company.get('estimate')))
       .filter(company => positiveEarningsGrowth ? company.getIn(['earningsLs', 1]) >= 0 : true)
       .filter(company => positiveRevenuGrowth ? company.getIn(['revenueLs', 1]) >= 0 : true)
+      .filter(company => company.getIn(['historyLength']) >= minHistoryLength)
       .toList()
-      .sortBy(company => -company.get('estimate'));
+      .sortBy(company => -company.get('estimate'))
+      .filter((value, index) => index < 200);
 
     // console.log('companysMerge', companysMerge.toJS());
     // console.log('this.state', this.state);
 
     return (
       <div>
-        <Toolbar>
-          <ToolbarGroup>
-            <Toggle
-              toggled={positiveEarningsGrowth}
-              onToggle={(e, value) => this.props.setPositiveEarningsGrowth(value)}
-              label="Positive Earnings Growth"
-            />
-            <Toggle
-              toggled={positiveRevenuGrowth}
-              onToggle={(e, active) => this.props.setPositiveRevenuGrowth(active)}
-              label="Positive Revenu Growth"
-            />
-          </ToolbarGroup>
-        </Toolbar>
+        <Filter
+          positiveEarningsGrowth={positiveEarningsGrowth}
+          positiveRevenuGrowth={positiveRevenuGrowth}
+          minHistoryLength={minHistoryLength}
+          setPositiveEarningsGrowth={setPositiveEarningsGrowth}
+          setPositiveRevenuGrowth={setPositiveRevenuGrowth}
+          setMinHistoryLength={setMinHistoryLength}
+        />
         <Table companys={companysMerge} />
       </div>
     );
@@ -72,15 +61,18 @@ class StockApp extends Component {
 function mapStateToProps(state) {
   return {
     stocks: state.stockReducer,
-    positiveEarningsGrowth: state.filterReducer.get('positiveEarningsGrowth', true),
-    positiveRevenuGrowth: state.filterReducer.get('positiveRevenuGrowth', true)
+    positiveEarningsGrowth: state.filterReducer.get('positiveEarningsGrowth'),
+    positiveRevenuGrowth: state.filterReducer.get('positiveRevenuGrowth'),
+    minHistoryLength: state.filterReducer.get('minHistoryLength'),
+    projectionTime: 5
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     setPositiveEarningsGrowth: bindActionCreators(setPositiveEarningsGrowth, dispatch),
-    setPositiveRevenuGrowth: bindActionCreators(setPositiveRevenuGrowth, dispatch)
+    setPositiveRevenuGrowth: bindActionCreators(setPositiveRevenuGrowth, dispatch),
+    setMinHistoryLength: bindActionCreators(setMinHistoryLength, dispatch)
   };
 }
 
