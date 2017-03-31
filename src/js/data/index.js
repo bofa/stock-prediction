@@ -1,7 +1,7 @@
 import earningsEstimate, { leastSquarceEstimate, calculateMean } from '../services/ls';
 import data from './data.json';
 import { data as companyNames } from './companies.json';
-import { data as screener } from './screener.json';
+import priceArray from './price.json';
 import { fromJS, Map } from 'immutable';
 
 // console.log('data', data);
@@ -9,10 +9,10 @@ import { fromJS, Map } from 'immutable';
 // console.log('screener', screener);
 
 const mergeData = companyNames.map((company, index) => {
-  const price = screener
-    .find(screenerCompany => screenerCompany.ShortName === company.ShortName)
-    .KpisValues[1].NumValue;
+  const priceObj = priceArray
+    .find(screenerCompany => screenerCompany.ShortName === company.ShortName);
 
+  const price = priceObj ? priceObj.Price : 0;
 
   const dividend = data[index][4].Sparkline;
   const earnings = data[index][5].Sparkline;
@@ -67,8 +67,8 @@ const mergeData = companyNames.map((company, index) => {
 // .filter(c1 => !c1.earnings.find(e => e.yield < 0))
 // .filter(c => !isNaN(c.estimate))
 // .sort((c1, c2) => c2.estimate - c1.estimate)
-.map(company => { console.log(company); return company; })
-.map(v => [v.ShortName, fromJS(v)])
+// .map(company => { console.log(company); return company; })
+.map(v => [v.ShortName, fromJS(v)]);
 // .filter((c, index) => index < 100);
 
 

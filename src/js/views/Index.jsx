@@ -20,6 +20,7 @@ class StockApp extends Component {
     positiveEarningsGrowth: PropTypes.boolean,
     positiveRevenuGrowth: PropTypes.boolean,
     minHistoryLength: PropTypes.integer,
+    projectionTime: PropTypes.integer,
     setPositiveEarningsGrowth: PropTypes.func,
     setPositiveRevenuGrowth: PropTypes.func,
     setMinHistoryLength: PropTypes.func
@@ -30,14 +31,14 @@ class StockApp extends Component {
     const { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength } = this.props;
 
     const companysMerge = companys.mergeDeep(stocks)
-      .map(company => company.set('estimate', earningsEstimate(company, projectionTime)))
-      .filter(company => !isNaN(company.get('estimate')))
+      .filter(company => company.getIn(['historyLength']) >= minHistoryLength)
       .filter(company => positiveEarningsGrowth ? company.getIn(['earningsLs', 1]) >= 0 : true)
       .filter(company => positiveRevenuGrowth ? company.getIn(['revenueLs', 1]) >= 0 : true)
-      .filter(company => company.getIn(['historyLength']) >= minHistoryLength)
+      .map(company => company.set('estimate', earningsEstimate(company, projectionTime)))
+      .filter(company => !isNaN(company.get('estimate')))
       .toList()
       .sortBy(company => -company.get('estimate'))
-      .filter((value, index) => index < 200);
+      .filter((value, index) => index < 100);
 
     // console.log('companysMerge', companysMerge.toJS());
     // console.log('this.state', this.state);

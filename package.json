@@ -1,22 +1,10 @@
 {
-  "name": "react-redux-d3-webpack-es6-seed",
+  "name": "nordic-stock-prediction",
   "description": "A project seed to start react, redux and d3 project.",
   "version": "1.0.0",
-  "author": "Manish Shanker <manishshanker81@gmail.com>",
+  "author": "Per-Erik Karlsson",
   "license": "MIT",
-  "keywords": [
-    "react",
-    "redux",
-    "es6",
-    "hmr",
-    "hot",
-    "babel",
-    "webpack",
-    "boilerplate",
-    "starter",
-    "d3",
-    "visualisation"
-  ],
+  "keywords": [],
   "repository": {
     "type": "git",
     "url": "https://github.com/nicksp/redux-webpack-es6-boilerplate.git"
@@ -34,9 +22,11 @@
     "test": "mocha --compilers js:babel-core/register,css:./test/unit/cssNullCompiler.js --require ./test/unit/testHelper.js --recursive ./test/unit",
     "test:watch": "npm run test -- --watch",
     "deploy": "npm run build & git add build/ & git commit -m \"new build\" & git subtree push --prefix build origin gh-pages",
-    "pages": "git add build/ & git commit -m \"new build\" & git push origin --delete gh-pages & git subtree push --prefix build origin gh-pages"
+    "pages": "git add build/ & git commit -m \"new build\" & git push origin --delete gh-pages & git subtree push --prefix build origin gh-pages",
+    "scrape": "babel-node --presets es2015 scrape/scrape.js"
   },
   "devDependencies": {
+    "babel-cli": "6.24.0",
     "babel-core": "6.7.7",
     "babel-eslint": "6.0.3",
     "babel-loader": "6.2.4",
@@ -71,7 +61,8 @@
     "style-loader": "0.13.0",
     "url-loader": "0.5.7",
     "webpack": "1.13.0",
-    "webpack-dev-server": "1.14.1"
+    "webpack-dev-server": "1.14.1",
+    "write-json-file": "2.0.0"
   },
   "dependencies": {
     "autoprefixer": "6.3.6",
