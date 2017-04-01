@@ -77,7 +77,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        include: PATHS.styles,
+        include: [PATHS.styles, /flexboxgrid/],
         loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader')
       },
       // Inline base64 URLs for <=8k images, direct URLs for the rest

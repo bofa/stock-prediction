@@ -6,6 +6,8 @@ import BarChart from '../components/BarChart';
 import data from '../data';
 import { mergeCompany } from '../ducks/stocks';
 import { Map } from 'immutable';
+import { Grid, Row, Col } from 'react-flexbox-grid';
+import Measure from 'react-measure';
 
 // const yieldArray = stocks.getIn([stock, 5, 'Sparkline'], new List());
 
@@ -15,6 +17,11 @@ class View extends Component {
     stocks: PropTypes.object.isRequired,
     mergeCompany: PropTypes.func.isRequired
   };
+
+  state = {
+    width: 400,
+    height: 400
+  }
 
   setCompanyEarnings = (manipulableLine) => {
     const shortName = this.props.params.company;
@@ -52,22 +59,32 @@ class View extends Component {
           <Link to='/stock-prediction'>Back</Link>
           {' ' + staticStockData.get('Name')}
         </h1>
-        <BarChart
-          width={400}
-          height={400}
-          bars={revenue.toJS()}
-          line={revenueLsStatic.toJS()}
-          manipulableLine={revenueLs.toJS()}
-          onChange={this.setCompanyRevenue}
-        />
-        <BarChart
-          width={400}
-          height={400}
-          bars={earnings.toJS()}
-          line={earningsLsStatic.toJS()}
-          manipulableLine={earningsLs.toJS()}
-          onChange={this.setCompanyEarnings}
-        />
+        <Row>
+          <Col xs={12} sm={12} md={6} lg={6}>
+            <Measure onMeasure={({width}) => this.setState({ width })}>
+              <BarChart
+                width={400}
+                height={400}
+                name={"Revenue"}
+                bars={revenue.toJS()}
+                line={revenueLsStatic.toJS()}
+                manipulableLine={revenueLs.toJS()}
+                onChange={this.setCompanyRevenue}
+              />
+            </Measure>
+          </Col>
+          <Col xs={12} sm={12} md={6} lg={6}>
+            <BarChart
+              width={400}
+              height={400}
+              name={"Earnings"}
+              bars={earnings.toJS()}
+              line={earningsLsStatic.toJS()}
+              manipulableLine={earningsLs.toJS()}
+              onChange={this.setCompanyEarnings}
+            />
+          </Col>
+        </Row>
         <hr />
         <Link to='/stock-prediction'>Back To Home View</Link>
       </div>

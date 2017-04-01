@@ -85,6 +85,8 @@
     "react-bootstrap": "0.29.5",
     "react-dom": "15.0.1",
     "react-faux-dom": "3.0.1",
+    "react-flexbox-grid": "1.0.2",
+    "react-measure": "1.4.6",
     "react-redux": "4.4.5",
     "react-router": "2.3.0",
     "react-vis": "0.4.2",

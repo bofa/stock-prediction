@@ -7,6 +7,7 @@ import Faux from 'react-faux-dom';
 // Can't use ES6 because Faux needs mixins too work.
 const DatamodelGraph = React.createClass({
   propTypes: {
+    name: PropTypes.string.isRequired,
     bars: PropTypes.object.isRequired,
     line: PropTypes.object.isRequired,
     manipulableLine: PropTypes.object.isRequired,
@@ -35,11 +36,11 @@ const DatamodelGraph = React.createClass({
   // },
 
   componentDidMount() {
-    const { onChange, bars, line, manipulableLine, width, height } = this.props;
+    const { name, onChange, bars, line, manipulableLine, width, height } = this.props;
 
     const faux = this.connectFauxDOM('div.renderedD3', 'chart');
     // set the dimensions and margins of the diagram
-    const margin = { top: 0, right: 0, bottom: 0, left: 0 };
+    const margin = { top: 20, right: 10, bottom: 0, left: 0 };
 
     const svg = d3.select(faux).append('svg')
       .attr('width', width)
@@ -47,6 +48,17 @@ const DatamodelGraph = React.createClass({
 
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Add title
+
+    svg.append("text")
+      .attr("x", (width / 2))
+      .attr("y", 0 + (margin.top))
+      .attr("text-anchor", "middle")
+      .style("font-size", "16px")
+      .text(name);
+
+    // Init transformations
 
     var barWidth = 15;
 

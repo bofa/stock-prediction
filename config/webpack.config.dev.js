@@ -61,7 +61,8 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        loader: 'style-loader!css-loader!postcss-loader'
+        loader: 'style-loader!css-loader!postcss-loader',
+        include: /flexboxgrid/
       },
       // Inline base64 URLs for <=8k images, direct URLs for the rest
       {

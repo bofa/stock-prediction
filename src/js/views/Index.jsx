@@ -9,6 +9,7 @@ import companys from '../data';
 import earningsEstimate from '../services/ls';
 import { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength } from '../ducks/filter';
 
+
 // const buttonStyle = {
 //   margin: 12,
 // };
