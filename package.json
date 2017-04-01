@@ -1,6 +1,6 @@
 {
   "name": "nordic-stock-prediction",
-  "description": "A project seed to start react, redux and d3 project.",
+  "description": "Amazing nordic stock predicition",
   "version": "1.0.0",
   "author": "Per-Erik Karlsson",
   "license": "MIT",
@@ -21,7 +21,6 @@
     "jscs": "jscs src/js/",
     "test": "mocha --compilers js:babel-core/register,css:./test/unit/cssNullCompiler.js --require ./test/unit/testHelper.js --recursive ./test/unit",
     "test:watch": "npm run test -- --watch",
-    "deploy": "npm run build & git add build/ & git commit -m \"new build\" & git subtree push --prefix build origin gh-pages",
     "pages": "git add build/ & git commit -m \"new build\" & git push origin --delete gh-pages & git subtree push --prefix build origin gh-pages",
     "scrape": "babel-node --presets es2015 scrape/scrape.js"
   },
