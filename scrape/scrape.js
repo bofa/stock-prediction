@@ -96,7 +96,9 @@ function delayApiCall(comp, delay = 20000) {
   return new Promise((resolve, reject) => {
     setTimeout(() => axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`)
       .then(response => resolve(response))
-      // .catch(delayApiCall(comp))
+      .catch(() => setTimeout(
+        () => axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`).then(response => resolve(response))
+        , delay))
     , delay);
   });
 }
@@ -113,7 +115,7 @@ function getHistoricData(prices) {
       })))
     ).toJS())
     .map((historicalData, index) => reduceCompanyData(historicalData, index, companyNames, prices))
-  ).then((response) => writeJsonFile('earnings.json', response, { indent: null }))
+  ).then((response) => writeJsonFile('src/js/data/earnings.json', response, { indent: null }))
   .then(() => console.log('done earnings'));
 }
 
