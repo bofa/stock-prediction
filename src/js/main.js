@@ -1,13 +1,13 @@
-import '../styles/styles.scss';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import configureStore  from './store';
 import { Router, browserHistory } from 'react-router';
 import es6promise from 'es6-promise';
 
+import configureStore  from './store';
 import routes from './routes';
+import '../styles/styles.scss';
+
 
 const store = configureStore();
 const rootElement = document.getElementById('app');

@@ -56,8 +56,7 @@ class View extends Component {
     return (
       <div>
         <h1>
-          <Link to='/stock-prediction'>Back</Link>
-          {' ' + staticStockData.get('Name')}
+          <Link to='/stock-prediction'>Back</Link>{' ' + staticStockData.get('Name')}
         </h1>
         <Row>
           <Col xs={12} sm={12} md={6} lg={6}>

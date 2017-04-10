@@ -1,5 +1,10 @@
 import React from 'react';
 import { Route, IndexRoute, Redirect } from 'react-router';
+// import {
+//   BrowserRouter as Router,
+//   Route,
+//   Link
+// } from 'react-router-dom';
 
 import App from './App';
 import Index from './views/Index';

@@ -27,7 +27,7 @@ export default class Filter extends Component {
           <ToolbarTitle text="Positive Earnings Growth" />
           <Toggle
             toggled={positiveEarningsGrowth}
-            onToggle={(e, value) => this.props.setPositiveEarningsGrowth(value)}
+            onToggle={(e, value) => setPositiveEarningsGrowth(value)}
           />
         </ToolbarGroup>
         <ToolbarGroup>
@@ -35,7 +35,7 @@ export default class Filter extends Component {
           <Toggle
             style={sliderStyle}
             toggled={positiveRevenuGrowth}
-            onToggle={(e, active) => this.props.setPositiveRevenuGrowth(active)}
+            onToggle={(e, active) => setPositiveRevenuGrowth(active)}
           />
         </ToolbarGroup>
         <ToolbarGroup>
