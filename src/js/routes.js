@@ -51,7 +51,7 @@ import NotFoundView from './views/NotFoundView';
 // }
 
 export default (
-  <Route path="/stock-prediction" component={App} /*onEnter={checkForRedirect}*/>
+  <Route path="/" component={App} /*onEnter={checkForRedirect}*/>
     <IndexRoute component={Index} />
     <Route path="company/:company" component={Company} />
     <Route path="404" component={NotFoundView} />

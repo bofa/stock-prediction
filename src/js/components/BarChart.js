@@ -1,7 +1,8 @@
 /* eslint react/prefer-es6-class: "off", max-len: "off" */
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import * as d3 from 'd3';
-import d3Drag from 'd3-drag';
+// import d3Drag from 'd3-drag';
 import Faux from 'react-faux-dom';
 
 // Can't use ES6 because Faux needs mixins too work.
@@ -36,7 +37,7 @@ const DatamodelGraph = React.createClass({
   // },
 
   componentDidMount() {
-    const { name, onChange, bars, line, manipulableLine, width, height } = this.props;
+    const { name, onChange, bars, line, manipulableLine, width, height, projectionLength } = this.props;
 
     const faux = this.connectFauxDOM('div.renderedD3', 'chart');
     // set the dimensions and margins of the diagram
@@ -68,14 +69,14 @@ const DatamodelGraph = React.createClass({
     const timeLsEstimate1 = 0;
     const timeLsEstimate2 = 9;
 
-    const originalValueLsEstimate1 = line[0] - line[1]*9;
-    const originalValueLsEstimate2 = line[0] - line[1]*0;
+    const originalValueLsEstimate1 = line[0] - line[1]*timeLsEstimate2;
+    const originalValueLsEstimate2 = line[0] - line[1]*timeLsEstimate1;
 
     const valueLsEstimate1 = manipulableLine[0] - manipulableLine[1]*9;
     const valueLsEstimate2 = manipulableLine[0] - manipulableLine[1]*0;
 
-    const max = Math.max(0, valueLsEstimate1, valueLsEstimate2, ...bars.map(p => p.yield));
-    const min = Math.min(0, valueLsEstimate1, valueLsEstimate2, ...bars.map(p => p.yield));
+    const max = Math.max(0, valueLsEstimate1, valueLsEstimate2, ...bars.map(p => p.revenue), ...bars.map(p => p.earnings));
+    const min = Math.min(0, valueLsEstimate1, valueLsEstimate2, ...bars.map(p => p.revenue), ...bars.map(p => p.earnings));
 
     const extended = 1.05;
     const scale = height / (max - min) / extended;
@@ -86,32 +87,41 @@ const DatamodelGraph = React.createClass({
 
     console.log('line', line, 'manipulableLine', manipulableLine);
 
-    svg.selectAll("rect").
-      data(bars).
-      enter().
-      append("svg:rect").
-      attr("x", function(datum, index) { return x(index); }).
-      attr("y", function(datum) { return datum.yield > 0 ? y(datum.yield) : y(0); }).
-      attr("height", function(datum) { return scale*Math.abs(datum.yield); }).
-      // attr("y", function(datum) { return 0; }).
-      // attr("height", function(datum) { return height/2; }).
-      attr("width", barWidth).
-      attr("fill", datum => datum.yield > 0 ? "#2d578b" : "#ff0000");
+    const svgBar = svg.selectAll("rect")
+      .data(bars)
+      .enter();
+
+    svgBar.append("svg:rect")
+      .attr("x", function(datum, index) { return x(index) + 0; })
+      .attr("y", function(datum) { return datum.revenue > 0 ? y(datum.revenue) : y(0); })
+      .attr("height", function(datum) { return scale*Math.abs(datum.revenue); })
+      .attr("width", barWidth)
+      .attr("fill", datum => datum.revenue > 0 ? "#123456" : "#ff0000");
+
+    svgBar.append("svg:rect")
+      .attr("x", (datum, index) => x(index) + barWidth)
+      .attr("y", function(datum) { return datum.earnings > 0 ? y(datum.earnings) : y(0); })
+      .attr("height", function(datum) { return scale*Math.abs(datum.earnings); })
+      .attr("width", barWidth)
+      .attr("fill", datum => datum.earnings > 0 ? "#2d578b" : "#ff0000");
+
+    // drawBars('revenue', bars, "#123456", "#fedcba", 30);
+    // drawBars('earnings', bars, "#2d578b", "#ff0000", 0);
 
     // Draw line
     //Draw the line
     svg.append("line")
-      .attr("x1", x(timeLsEstimate1) )
+      .attr("x1", x(timeLsEstimate1) + 1.5*barWidth )
       .attr("y1", y(originalValueLsEstimate1))
-      .attr("x2", x(timeLsEstimate2))
+      .attr("x2", x(timeLsEstimate2) + 1.5*barWidth)
       .attr("y2", y(originalValueLsEstimate2))
-      .attr("stroke-width", 2)
-      .attr("stroke", "black");
+      .attr("stroke-width", 1)
+      .attr("stroke", "gray");
 
     const lsLine2 = svg.append("line")
-      .attr("x1", x(0) )
+      .attr("x1", x(0) + 1.5*barWidth)
       .attr("y1", y(manipulableLine[0] - manipulableLine[1]*9))
-      .attr("x2", x(bars.length-1))
+      .attr("x2", x(bars.length-1) + 1.5*barWidth)
       .attr("y2", y(manipulableLine[0]))
       .attr("stroke-width", 2)
       .attr("stroke", "black");
@@ -119,33 +129,31 @@ const DatamodelGraph = React.createClass({
     // Dragabel box
     const draw = this.drawFauxDOM;
     function dragged(obj) {
-      obj.attr("y", event.offsetY);
+      obj.attr("cy", event.offsetY);
 
-      lsLine2.attr('y1', box1.attr('y'))
-             .attr('y2', box2.attr('y'));
+      lsLine2.attr('y1', box1.attr('cy'))
+             .attr('y2', box2.attr('cy'));
 
       onChange([
-        yInv(box2.attr('y')),
-        (yInv(box2.attr('y')) - yInv(box1.attr('y')))/9
+        yInv(box2.attr('cy')),
+        (yInv(box2.attr('cy')) - yInv(box1.attr('cy')))/9
       ]);
       draw();
     }
 
-    var box1 = svg.append("rect")
+    var box1 = svg.append("circle")
       .datum({x: 0, y: 0})
-      .attr("x", x(timeLsEstimate1))
-      .attr("y", y(valueLsEstimate1))
-      .attr("width", 10)
-      .attr("height", 10)
+      .attr("cx", x(timeLsEstimate1) + 1.5*barWidth)
+      .attr("cy", y(valueLsEstimate1))
+      .attr("r", 5)
       .call(d3.drag()
         .on("drag", () => dragged(box1)));
 
-    var box2 = svg.append("rect")
+    var box2 = svg.append("circle")
       .datum({x: 0, y: 0})
-      .attr("x", x(timeLsEstimate2))
-      .attr("y", y(valueLsEstimate2))
-      .attr("width", 10)
-      .attr("height", 10)
+      .attr("cx", x(timeLsEstimate2) + 1.5*barWidth)
+      .attr("cy", y(valueLsEstimate2))
+      .attr("r", 5)
       .call(d3.drag()
         .on("drag", () => dragged(box2)));
 

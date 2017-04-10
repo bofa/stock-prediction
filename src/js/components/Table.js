@@ -11,9 +11,14 @@ const tableItem = (company, key) =>
       </a>
       {company.get('Name')}
     </TableRowColumn>
-    <TableRowColumn>{company.get('price')}</TableRowColumn>
-    <TableRowColumn>{Math.round(100 * company.get('avgDividendRatio'))}%</TableRowColumn>
-    <TableRowColumn><Link to={`/stock-prediction/company/${company.get('ShortName')}`} >{Math.round(100 * company.get('estimate'))}%</Link></TableRowColumn>
+    <TableRowColumn>
+      {Math.round(100 * company.getIn(['dividend', -1, 'yield']) / company.get('price'))}%
+    </TableRowColumn>
+    <TableRowColumn>
+      {Math.round(company.get('price') / company.getIn(['earnings', -1, 'yield']))}
+    </TableRowColumn>
+     <TableRowColumn>{Math.round(100 * company.get('avgDividendRatio'))}%</TableRowColumn>
+    <TableRowColumn><Link to={`/company/${company.get('ShortName')}`} >{Math.round(100 * company.get('estimate'))}%</Link></TableRowColumn>
   </TableRow>
 ;
 
@@ -24,7 +29,7 @@ export default class App extends Component {
 
   render() {
     const { companys } = this.props;
-
+    console.log('companys', companys.toJS());
     return (
       <Table>
         <TableHeader
@@ -33,7 +38,8 @@ export default class App extends Component {
         >
           <TableRow>
             <TableHeaderColumn>Name</TableHeaderColumn>
-            <TableHeaderColumn>Price</TableHeaderColumn>
+            <TableHeaderColumn>Yield</TableHeaderColumn>
+            <TableHeaderColumn>P/E</TableHeaderColumn>
             <TableHeaderColumn>Avg Dividend Ratio</TableHeaderColumn>
             <TableHeaderColumn>Estimated Return</TableHeaderColumn>
           </TableRow>

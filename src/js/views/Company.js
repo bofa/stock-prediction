@@ -1,13 +1,15 @@
-import React, { Component, PropTypes } from 'react';
-import { Link } from 'react-router';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+// import { Link } from 'react-router';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import BarChart from '../components/BarChart';
 import data from '../data';
 import { mergeCompany } from '../ducks/stocks';
 import { Map } from 'immutable';
-import { Grid, Row, Col } from 'react-flexbox-grid';
-import Measure from 'react-measure';
+// import { Grid, Row, Col } from 'react-flexbox-grid';
+// import Measure from 'react-measure';
+import IconButton from 'material-ui/IconButton';
 
 // const yieldArray = stocks.getIn([stock, 5, 'Sparkline'], new List());
 
@@ -37,6 +39,13 @@ class View extends Component {
     });
   }
 
+  removeCompany = () => {
+    const shortName = this.props.params.company;
+    this.props.mergeCompany(shortName, {
+      visable: false
+    });
+  }
+
   render () {
     const { stocks } = this.props;
     const shortName = this.props.params.company;
@@ -52,40 +61,45 @@ class View extends Component {
     const revenueLsStatic = staticStockData.get('revenueLs');
     const revenueLs = staticStockData.get('revenueLs');
 
+    console.log('earnings', earnings.toJS(), 'revenue', revenue.toJS());
+    const bars = revenue.mergeWith(
+      (earning, revenue) => ({
+        year: revenue.get('year'),
+        earnings: revenue.get('yield'),
+        revenue: earning.get('yield')
+      }), earnings).toJS();
 
+    console.log('bars', bars)
     return (
       <div>
         <h1>
-          <Link to='/stock-prediction'>Back</Link>{' ' + staticStockData.get('Name')}
+          <IconButton
+            iconClassName="material-icons"
+            tooltip="Back"
+            onTouchTap={this.removeCompany}
+            href='/'
+          >
+            arrow_back
+          </IconButton>
+          <IconButton
+            iconClassName="material-icons"
+            tooltip="Remove"
+            onTouchTap={this.removeCompany}
+            href='/'
+          >
+            delete
+          </IconButton>
+          {' ' + staticStockData.get('Name')}
         </h1>
-        <Row>
-          <Col xs={12} sm={12} md={6} lg={6}>
-            <Measure onMeasure={({width}) => this.setState({ width })}>
-              <BarChart
-                width={400}
-                height={400}
-                name={"Revenue"}
-                bars={revenue.toJS()}
-                line={revenueLsStatic.toJS()}
-                manipulableLine={revenueLs.toJS()}
-                onChange={this.setCompanyRevenue}
-              />
-            </Measure>
-          </Col>
-          <Col xs={12} sm={12} md={6} lg={6}>
-            <BarChart
-              width={400}
-              height={400}
-              name={"Earnings"}
-              bars={earnings.toJS()}
-              line={earningsLsStatic.toJS()}
-              manipulableLine={earningsLs.toJS()}
-              onChange={this.setCompanyEarnings}
-            />
-          </Col>
-        </Row>
-        <hr />
-        <Link to='/stock-prediction'>Back To Home View</Link>
+        <BarChart
+          width={400}
+          height={400}
+          name="Revenue"
+          bars={bars}
+          line={earningsLsStatic.toJS()}
+          manipulableLine={earningsLs.toJS()}
+          onChange={this.setCompanyEarnings}
+        />
       </div>
     );
   }
