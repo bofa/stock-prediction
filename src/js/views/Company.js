@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-// import { Link } from 'react-router';
+import { browserHistory } from 'react-router';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import BarChart from '../components/BarChart';
@@ -40,10 +40,12 @@ class View extends Component {
   }
 
   removeCompany = () => {
+    console.log('running remove');
     const shortName = this.props.params.company;
     this.props.mergeCompany(shortName, {
-      visable: false
+      hide: true
     });
+    browserHistory.push('/');
   }
 
   render () {
@@ -76,16 +78,16 @@ class View extends Component {
           <IconButton
             iconClassName="material-icons"
             tooltip="Back"
-            onTouchTap={this.removeCompany}
-            href='/'
+            onClick={() => browserHistory.push('/')}
+            onTouchTap={() => browserHistory.push('/')}
           >
             arrow_back
           </IconButton>
           <IconButton
             iconClassName="material-icons"
             tooltip="Remove"
+            onClick={this.removeCompany}
             onTouchTap={this.removeCompany}
-            href='/'
           >
             delete
           </IconButton>

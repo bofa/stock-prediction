@@ -9,9 +9,9 @@ import Faux from 'react-faux-dom';
 const DatamodelGraph = React.createClass({
   propTypes: {
     name: PropTypes.string.isRequired,
-    bars: PropTypes.object.isRequired,
-    line: PropTypes.object.isRequired,
-    manipulableLine: PropTypes.object.isRequired,
+    bars: PropTypes.array.isRequired,
+    line: PropTypes.array.isRequired,
+    manipulableLine: PropTypes.array.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     onChange: PropTypes.func.isRequired

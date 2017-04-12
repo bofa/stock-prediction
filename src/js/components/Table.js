@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
 import { Link } from 'react-router';
 import bdIcon from '../../images/bd.png';
@@ -12,13 +13,19 @@ const tableItem = (company, key) =>
       {company.get('Name')}
     </TableRowColumn>
     <TableRowColumn>
+      <Link to={`/company/${company.get('ShortName')}`} >
+        {Math.round(100 * company.get('estimate'))}%
+      </Link>
+    </TableRowColumn>
+    <TableRowColumn>
       {Math.round(100 * company.getIn(['dividend', -1, 'yield']) / company.get('price'))}%
     </TableRowColumn>
     <TableRowColumn>
       {Math.round(company.get('price') / company.getIn(['earnings', -1, 'yield']))}
     </TableRowColumn>
-     <TableRowColumn>{Math.round(100 * company.get('avgDividendRatio'))}%</TableRowColumn>
-    <TableRowColumn><Link to={`/company/${company.get('ShortName')}`} >{Math.round(100 * company.get('estimate'))}%</Link></TableRowColumn>
+    <TableRowColumn>
+      {Math.round(100 * company.get('avgDividendRatio'))}%
+    </TableRowColumn>
   </TableRow>
 ;
 
@@ -30,6 +37,7 @@ export default class App extends Component {
   render() {
     const { companys } = this.props;
     console.log('companys', companys.toJS());
+
     return (
       <Table>
         <TableHeader
@@ -38,10 +46,10 @@ export default class App extends Component {
         >
           <TableRow>
             <TableHeaderColumn>Name</TableHeaderColumn>
+            <TableHeaderColumn>Estimated Return</TableHeaderColumn>
             <TableHeaderColumn>Yield</TableHeaderColumn>
             <TableHeaderColumn>P/E</TableHeaderColumn>
             <TableHeaderColumn>Avg Dividend Ratio</TableHeaderColumn>
-            <TableHeaderColumn>Estimated Return</TableHeaderColumn>
           </TableRow>
         </TableHeader>
         <TableBody

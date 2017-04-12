@@ -1,5 +1,6 @@
 import { List } from 'immutable';
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import 'react-vis/dist/main.scss';
@@ -32,6 +33,7 @@ class StockApp extends Component {
     const { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength } = this.props;
 
     const companysMerge = companys.mergeDeep(stocks)
+      .filter(company => !company.getIn(['hide']))
       .filter(company => company.getIn(['historyLength']) >= minHistoryLength)
       .filter(company => positiveEarningsGrowth ? company.getIn(['earningsLs', 1]) >= 0 : true)
       .filter(company => positiveRevenuGrowth ? company.getIn(['revenueLs', 1]) >= 0 : true)

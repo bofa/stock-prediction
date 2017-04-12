@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { fromJS } from 'immutable';
 import writeJsonFile from 'write-json-file';
-import { data as companyNames } from '../src/js/data/companies.json';
+import { data as companyNames } from './companies.json';
 import { leastSquarceEstimate } from '../src/js/services/ls';
 
 // console.log('companies', companies);
