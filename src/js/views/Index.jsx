@@ -8,6 +8,7 @@ import Table from '../components/Table';
 import Filter from '../components/Filter';
 import companys from '../data';
 import earningsEstimate from '../services/ls';
+
 import { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength } from '../ducks/filter';
 
 
@@ -48,6 +49,7 @@ class StockApp extends Component {
 
     return (
       <div>
+
         <Filter
           positiveEarningsGrowth={positiveEarningsGrowth}
           positiveRevenuGrowth={positiveRevenuGrowth}
