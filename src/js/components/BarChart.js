@@ -52,16 +52,16 @@ const DatamodelGraph = React.createClass({
 
     // Add title
 
-    svg.append("text")
-      .attr("x", (width / 2))
-      .attr("y", 0 + (margin.top))
-      .attr("text-anchor", "middle")
-      .style("font-size", "16px")
-      .text(name);
+    // svg.append("text")
+    //   .attr("x", (width / 2))
+    //   .attr("y", 0 + (margin.top))
+    //   .attr("text-anchor", "middle")
+    //   .style("font-size", "16px")
+    //   .text(name);
 
     // Init transformations
 
-    var barWidth = 15;
+    var barWidth = 10;
 
     var x = d3.scaleLinear().domain([0, bars.length]).range([0, width]);
     // var y = d3.scaleLinear().domain([d3.min(bars, function(datum) { return datum.yield; }), d3.max(bars, function(datum) { return datum.yield; })]);
@@ -91,6 +91,7 @@ const DatamodelGraph = React.createClass({
       .data(bars)
       .enter();
 
+    // Revenue
     svgBar.append("svg:rect")
       .attr("x", function(datum, index) { return x(index) + 0; })
       .attr("y", function(datum) { return datum.revenue > 0 ? y(datum.revenue) : y(0); })
@@ -98,12 +99,21 @@ const DatamodelGraph = React.createClass({
       .attr("width", barWidth)
       .attr("fill", datum => datum.revenue > 0 ? "#123456" : "#ff0000");
 
+    // Earnings
     svgBar.append("svg:rect")
       .attr("x", (datum, index) => x(index) + barWidth)
       .attr("y", function(datum) { return datum.earnings > 0 ? y(datum.earnings) : y(0); })
       .attr("height", function(datum) { return scale*Math.abs(datum.earnings); })
       .attr("width", barWidth)
       .attr("fill", datum => datum.earnings > 0 ? "#2d578b" : "#ff0000");
+
+    // Earnings
+    svgBar.append("svg:rect")
+      .attr("x", (datum, index) => x(index) + 2*barWidth)
+      .attr("y", function(datum) { return datum.dividend > 0 ? y(datum.dividend) : y(0); })
+      .attr("height", function(datum) { return scale*Math.abs(datum.dividend); })
+      .attr("width", barWidth)
+      .attr("fill", datum => datum.dividend > 0 ? "#035C43" : "#ff0000");
 
     // drawBars('revenue', bars, "#123456", "#fedcba", 30);
     // drawBars('earnings', bars, "#2d578b", "#ff0000", 0);

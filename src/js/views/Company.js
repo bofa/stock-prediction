@@ -55,6 +55,8 @@ class View extends Component {
     const dynamicStockData = stocks.get(shortName, Map());
     const compbinedData = staticStockData.mergeDeep(dynamicStockData);
 
+    const dividend = staticStockData.get('dividend');
+
     const earnings = staticStockData.get('earnings');
     const earningsLsStatic = staticStockData.get('earningsLs');
     const earningsLs = compbinedData.get('earningsLs');
@@ -69,9 +71,15 @@ class View extends Component {
         year: revenue.get('year'),
         earnings: revenue.get('yield'),
         revenue: earning.get('yield')
-      }), earnings).toJS();
+      }), earnings)
+      .mergeWith((merged, dividend) => ({
+        ...merged,
+        dividend: dividend.get('yield')
+      }), dividend)
+      .toJS();
 
-    console.log('bars', bars)
+    console.log('bars', bars);
+
     return (
       <div>
         <h1>
