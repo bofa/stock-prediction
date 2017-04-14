@@ -29,3 +29,16 @@ export default function earningsEstimate(company, projectionTime) {
   const [bias, slop, cov] = earningsLs;
   return dividendRatio*(bias + projectionTime*slop/2) / price;
 }
+
+export function getProjection(company, projectionTime) {
+  const { earningsLs, avgDividendRatio } = company.toJS();
+  const dividendRatio = Math.min(avgDividendRatio, 0.8);
+
+  const [bias, slop, cov] = earningsLs;
+  return Array.from(Array(projectionTime), (e,i) => ({
+    year: 'Not Set',
+    revenue: 0,
+    earnings: bias + (i+1)*slop,
+    dividend: dividendRatio * (bias + (i+1)*slop)
+  }));
+}

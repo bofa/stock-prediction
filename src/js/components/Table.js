@@ -15,7 +15,7 @@ const tableItem = (company, key) =>
     </TableRowColumn>
     <TableRowColumn>
       <Link to={`${rootRoute}/company/${company.get('ShortName')}`} >
-        {Math.round(100 * company.get('estimate'))}%
+        {Math.round(1000 * company.get('estimate')) / 10}%
       </Link>
     </TableRowColumn>
     <TableRowColumn>

@@ -10,6 +10,7 @@ import { Map } from 'immutable';
 // import { Grid, Row, Col } from 'react-flexbox-grid';
 // import Measure from 'react-measure';
 import IconButton from 'material-ui/IconButton';
+import earningsEstimate, { getProjection } from '../services/ls';
 
 const rootPath = '/stock-prediction';
 
@@ -51,23 +52,22 @@ class View extends Component {
   }
 
   render () {
-    const { stocks } = this.props;
+    const { stocks, projectionTime } = this.props;
     const shortName = this.props.params.company;
     const staticStockData = data.get(shortName);
     const dynamicStockData = stocks.get(shortName, Map());
-    const compbinedData = staticStockData.mergeDeep(dynamicStockData);
+    const combinedData = staticStockData.mergeDeep(dynamicStockData);
 
     const dividend = staticStockData.get('dividend');
 
     const earnings = staticStockData.get('earnings');
     const earningsLsStatic = staticStockData.get('earningsLs');
-    const earningsLs = compbinedData.get('earningsLs');
+    const earningsLs = combinedData.get('earningsLs');
 
     const revenue = staticStockData.get('revenue');
     const revenueLsStatic = staticStockData.get('revenueLs');
     const revenueLs = staticStockData.get('revenueLs');
 
-    console.log('earnings', earnings.toJS(), 'revenue', revenue.toJS());
     const bars = revenue.mergeWith(
       (earning, revenue) => ({
         year: revenue.get('year'),
@@ -80,7 +80,11 @@ class View extends Component {
       }), dividend)
       .toJS();
 
-    console.log('bars', bars);
+    const barsProjection = getProjection(combinedData, projectionTime);
+
+    const combinedBars = bars.concat(barsProjection);
+
+    console.log('combinedBars', combinedBars, 'barsProjection', barsProjection);
 
     return (
       <div>
@@ -101,13 +105,14 @@ class View extends Component {
           >
             delete
           </IconButton>
-          {' ' + staticStockData.get('Name')}
+          {' ' + staticStockData.get('Name') + ', '}
+          {Math.round(1000 * earningsEstimate(combinedData, projectionTime)) / 10}%
         </h1>
         <BarChart
-          width={400}
+          width={600}
           height={400}
           name="Revenue"
-          bars={bars}
+          bars={combinedBars}
           line={earningsLsStatic.toJS()}
           manipulableLine={earningsLs.toJS()}
           onChange={this.setCompanyEarnings}
@@ -119,7 +124,8 @@ class View extends Component {
 
 function mapStateToProps(state) {
   return {
-    stocks: state.stockReducer
+    stocks: state.stockReducer,
+    projectionTime: 5
   };
 }
 

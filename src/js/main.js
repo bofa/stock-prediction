@@ -8,7 +8,6 @@ import configureStore  from './store';
 import routes from './routes';
 import '../styles/styles.scss';
 
-
 const store = configureStore();
 const rootElement = document.getElementById('app');
 

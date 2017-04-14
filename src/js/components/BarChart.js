@@ -14,7 +14,8 @@ const DatamodelGraph = React.createClass({
     manipulableLine: PropTypes.array.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
-    onChange: PropTypes.func.isRequired
+    onChange: PropTypes.func.isRequired,
+    projectionTime: PropTypes.number,
   },
 
   mixins: [
@@ -32,12 +33,8 @@ const DatamodelGraph = React.createClass({
   //   // this.props.init();
   // },
 
-  // componentWillReceiveProps(nextProps) {
-
-  // },
-
-  componentDidMount() {
-    const { name, onChange, bars, line, manipulableLine, width, height, projectionLength } = this.props;
+  componentWillReceiveProps(nextProps) {
+    const { name, onChange, bars, line, manipulableLine, width, height, projectionTime } = nextProps;
 
     const faux = this.connectFauxDOM('div.renderedD3', 'chart');
     // set the dimensions and margins of the diagram
@@ -85,7 +82,7 @@ const DatamodelGraph = React.createClass({
     const y = v => zero - scale*v;
     const yInv = y => (zero - y)/scale;
 
-    console.log('line', line, 'manipulableLine', manipulableLine);
+    // console.log('line', line, 'manipulableLine', manipulableLine);
 
     const svgBar = svg.selectAll("rect")
       .data(bars)
@@ -131,7 +128,7 @@ const DatamodelGraph = React.createClass({
     const lsLine2 = svg.append("line")
       .attr("x1", x(0) + 1.5*barWidth)
       .attr("y1", y(manipulableLine[0] - manipulableLine[1]*9))
-      .attr("x2", x(bars.length-1) + 1.5*barWidth)
+      .attr("x2", x(timeLsEstimate2) + 1.5*barWidth)
       .attr("y2", y(manipulableLine[0]))
       .attr("stroke-width", 2)
       .attr("stroke", "black");
@@ -144,11 +141,15 @@ const DatamodelGraph = React.createClass({
       lsLine2.attr('y1', box1.attr('cy'))
              .attr('y2', box2.attr('cy'));
 
+      draw();
+    }
+
+    function dragEnded() {
+      console.log('drag Ended!');
       onChange([
         yInv(box2.attr('cy')),
-        (yInv(box2.attr('cy')) - yInv(box1.attr('cy')))/9
+        (yInv(box2.attr('cy')) - yInv(box1.attr('cy'))) / 9
       ]);
-      draw();
     }
 
     var box1 = svg.append("circle")
@@ -157,7 +158,8 @@ const DatamodelGraph = React.createClass({
       .attr("cy", y(valueLsEstimate1))
       .attr("r", 5)
       .call(d3.drag()
-        .on("drag", () => dragged(box1)));
+        .on("drag", () => dragged(box1))
+        .on("end", dragEnded));
 
     var box2 = svg.append("circle")
       .datum({x: 0, y: 0})
@@ -165,9 +167,14 @@ const DatamodelGraph = React.createClass({
       .attr("cy", y(valueLsEstimate2))
       .attr("r", 5)
       .call(d3.drag()
-        .on("drag", () => dragged(box2)));
+        .on("drag", () => dragged(box2))
+        .on("end", dragEnded));
 
     // this.animateFauxDOM(1000000000000);
+  },
+
+  componentDidMount() {
+    this.componentWillReceiveProps(this.props);
   },
 
   render() {
