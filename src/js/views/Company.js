@@ -11,6 +11,8 @@ import { Map } from 'immutable';
 // import Measure from 'react-measure';
 import IconButton from 'material-ui/IconButton';
 
+const rootPath = '/stock-prediction';
+
 // const yieldArray = stocks.getIn([stock, 5, 'Sparkline'], new List());
 
 class View extends Component {
@@ -45,7 +47,7 @@ class View extends Component {
     this.props.mergeCompany(shortName, {
       hide: true
     });
-    browserHistory.push('/');
+    browserHistory.push(rootPath);
   }
 
   render () {
@@ -86,8 +88,8 @@ class View extends Component {
           <IconButton
             iconClassName="material-icons"
             tooltip="Back"
-            onClick={() => browserHistory.push('/')}
-            onTouchTap={() => browserHistory.push('/')}
+            onClick={() => browserHistory.push(rootPath)}
+            onTouchTap={() => browserHistory.push(rootPath)}
           >
             arrow_back
           </IconButton>

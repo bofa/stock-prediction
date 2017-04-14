@@ -1,15 +1,11 @@
 import React from 'react';
 import { Route, IndexRoute, Redirect } from 'react-router';
-// import {
-//   BrowserRouter as Router,
-//   Route,
-//   Link
-// } from 'react-router-dom';
-
 import App from './App';
 import Index from './views/Index';
 import Company from './views/Company';
 import NotFoundView from './views/NotFoundView';
+
+export const rootRoute = "/stock-prediction";
 
 // const gitHubRepoName = 'stock-prediction';
 // // The domain for your site
@@ -51,10 +47,10 @@ import NotFoundView from './views/NotFoundView';
 // }
 
 export default (
-  <Route path="/stock-prediction" component={App} /*onEnter={checkForRedirect}*/>
+  <Route path={rootRoute} component={App} /*onEnter={checkForRedirect}*/>
     <IndexRoute component={Index} />
     <Route path="company/:company" component={Company} />
     <Route path="404" component={NotFoundView} />
-    <Redirect from="*" to="404" />
+    <Redirect from="*" to={rootRoute} />
   </Route>
 );

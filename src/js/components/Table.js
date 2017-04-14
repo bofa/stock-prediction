@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
 import { Link } from 'react-router';
 import bdIcon from '../../images/bd.png';
+import { rootRoute } from '../routes';
 
 const tableItem = (company, key) =>
   <TableRow key={key} >
@@ -13,7 +14,7 @@ const tableItem = (company, key) =>
       {company.get('Name')}
     </TableRowColumn>
     <TableRowColumn>
-      <Link to={`/company/${company.get('ShortName')}`} >
+      <Link to={`${rootRoute}/company/${company.get('ShortName')}`} >
         {Math.round(100 * company.get('estimate'))}%
       </Link>
     </TableRowColumn>
