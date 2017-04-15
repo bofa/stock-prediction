@@ -6,10 +6,19 @@ import { connect } from 'react-redux';
 import { loadFile } from '../ducks/return';
 import { Map } from 'immutable';
 import Dropzone from 'react-dropzone';
-import IconButton from 'material-ui/IconButton';
-import earningsEstimate, { getProjection } from '../services/ls';
+import Table from '../components/Table';
+import internalIntrest from '../services/internalIntrest';
 
 // const yieldArray = stocks.getIn([stock, 5, 'Sparkline'], new List());
+function yearFrac(date) {
+  var ageDifMs = Date.now() - (new Date(date)).getTime();
+  var ageDate = new Date(ageDifMs);
+  return Math.abs(ageDate.getUTCFullYear() - 1970);
+}
+
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
 
 class View extends Component {
 
@@ -23,14 +32,48 @@ class View extends Component {
   render () {
     const { transactions } = this.props;
 
-    console.log('transactions', transactions.toJS());
+    const tranHeaders = transactions.get('headers');
+    const groups = transactions
+      .get('dataPoints', new Map())
+      .groupBy(point => point.get(3))
+      // .filter((item, key) => key === 'Handelsbanken A');
+
+    // console.log('Headers', tranHeaders.toJS());
+    // console.log('groups', groups.toJS());
+
+    const headers = [
+      'Group',
+      'Sum',
+      'Shares',
+      'Internal Rate Of Return'
+    ];
+
+    const table = groups.map((item, key) => {
+      const name = item.getIn([0, 3]);
+      const sumTransactions = item.reduce((sum, item) => sum + item.get(6), 0);
+
+      const numberOfShares = item
+        .filter(item => item.get(2) !== 'Utdelning')
+        .reduce((sum, item) => sum + item.get(4), 0);
+
+      const mappedData = item
+        .filter(item => isNumeric(item.get(6)))
+        .map((item) => ({
+          yearFrac: yearFrac(item.get(0)),
+          value: item.get(6)
+        }));
+
+      const intrest = internalIntrest(mappedData, 0);
+
+      return [name, sumTransactions, numberOfShares, Math.round(100*intrest) + '%'];
+    });
 
     return (
       <div>
         <Dropzone onDrop={this.props.loadFile}>
           <div>Try dropping some files here, or click to select files to upload.</div>
         </Dropzone>
-        {transactions.get('dataPoints', new Map()).map(item => item.get(3))}
+        <Table headers={headers} table={table} />
       </div>
     );
   }

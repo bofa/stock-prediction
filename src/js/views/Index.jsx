@@ -3,14 +3,16 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Link } from 'react-router';
 import 'react-vis/dist/main.scss';
+import { rootRoute } from '../routes';
+import bdIcon from '../../images/bd.png';
 import Table from '../components/Table';
 import Filter from '../components/Filter';
 import companys from '../data';
 import earningsEstimate from '../services/ls';
 
 import { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength } from '../ducks/filter';
-
 
 // const buttonStyle = {
 //   margin: 12,
@@ -47,6 +49,29 @@ class StockApp extends Component {
     // console.log('companysMerge', companysMerge.toJS());
     // console.log('this.state', this.state);
 
+    const headers = [
+      'Name',
+      'Estimated Return',
+      'Yield',
+      'P/E',
+      'Avg Dividend Ratio'
+    ];
+
+    const table = companysMerge.map((company, key) => [
+      <div>
+        <a href={`https://borsdata.se/${company.get('CountryUrlName')}/nyckeltal`} target="_blank">
+          <img border="0" alt="W3Schools" src={bdIcon} />
+        </a>
+        {company.get('Name')}
+      </div>,
+      <Link to={`${rootRoute}company/${company.get('ShortName')}`} >
+        {Math.round(1000 * company.get('estimate')) / 10}%
+      </Link>,
+      Math.round(100 * company.getIn(['dividend', -1, 'yield']) / company.get('price')) + '%',
+      Math.round(company.get('price') / company.getIn(['earnings', -1, 'yield'])),
+      Math.round(100 * company.get('avgDividendRatio')) + '%'
+    ]);
+
     return (
       <div>
 
@@ -58,7 +83,7 @@ class StockApp extends Component {
           setPositiveRevenuGrowth={setPositiveRevenuGrowth}
           setMinHistoryLength={setMinHistoryLength}
         />
-        <Table companys={companysMerge} />
+        <Table headers={headers} table={table} />
       </div>
     );
   }
