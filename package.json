@@ -76,6 +76,7 @@
     "react": "^15.4.2",
     "react-addons-shallow-compare": "^15.4.2",
     "react-dom": "^15.0.1",
+    "react-dropzone": "3.12.4",
     "react-faux-dom": "^3.0.1",
     "react-flexbox-grid": "^1.0.2",
     "react-measure": "^1.4.6",
