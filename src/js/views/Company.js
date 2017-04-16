@@ -11,8 +11,7 @@ import { Map } from 'immutable';
 // import Measure from 'react-measure';
 import IconButton from 'material-ui/IconButton';
 import earningsEstimate, { getProjection } from '../services/ls';
-
-const rootPath = '/stock-prediction';
+import { rootRoute } from '../routes';
 
 // const yieldArray = stocks.getIn([stock, 5, 'Sparkline'], new List());
 
@@ -92,8 +91,8 @@ class View extends Component {
           <IconButton
             iconClassName="material-icons"
             tooltip="Back"
-            onClick={() => browserHistory.push(rootPath)}
-            onTouchTap={() => browserHistory.push(rootPath)}
+            onClick={() => browserHistory.push(rootRoute)}
+            onTouchTap={() => browserHistory.push(rootRoute)}
           >
             arrow_back
           </IconButton>

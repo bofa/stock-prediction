@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { browserHistory } from 'react-router';
 import { Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle } from 'material-ui/Toolbar';
 import Toggle from 'material-ui/Toggle';
 import Slider from 'material-ui/Slider';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import RaisedButton from 'material-ui/RaisedButton';
+import { rootRoute } from '../routes';
 
 const sliderStyle = {
   textAlign: 'center'
@@ -65,6 +67,11 @@ export default class Filter extends Component {
             min={1} max={10} step={1}
             onChange={(e, value) => setMinHistoryLength(value)}
           />
+          <MenuItem
+            onClick={() => browserHistory.push(rootRoute + 'return')}
+          >
+            Go To Calc IIR
+          </MenuItem>
         </Drawer>
         <Toolbar>
           <ToolbarGroup>
