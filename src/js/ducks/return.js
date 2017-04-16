@@ -17,9 +17,8 @@ const RETURN_ADD_TO_GROUP = 'RETURN_ADD_TO_GROUP';
 
 function convertToNumber(str) {
   if(str) {
-    return Number(str.replace(',', '.'));
+    return Number(str.replace(',', '.').replace(' ', ''));
   }
-
   return 0;
 }
 
@@ -32,17 +31,41 @@ export function loadFile(acceptedFiles) {
         .map(line => line.split(';'));
 
         const csv = fromJS(csvJS);
+        // console.log('csvJS', csvJS);
 
-        return new Map({
-          headers: csv.get(0),
-          dataPoints: csv
-            .filter((item, index) => index > 0)
-            .map(transaction => transaction
-              .update(0, date => new Date(date))
-              .update(4, convertToNumber)
-              .update(5, convertToNumber)
-              .update(6, convertToNumber))
-        });
+        if (csvJS[0].length === 9) {
+          // Avanza
+          return new Map({
+            headers: csv.get(0),
+            dataPoints: csv
+              .filter((item, index) => index > 0)
+              .map(transaction => new Map({
+                date: new Date(transaction.get(0)),
+                type: transaction.get(2),
+                currency: transaction.get(7),
+                sum: convertToNumber(transaction.get(6)),
+                amount: convertToNumber(transaction.get(4)),
+                name: transaction.get(3),
+                id: transaction.get(8),
+              }))
+          });
+        } else if (csvJS[0].length === 22) {
+          // Nordnet
+          return new Map({
+            headers: csv.get(0),
+            dataPoints: csv
+              .filter((item, index) => index > 0)
+              .map(transaction => new Map({
+                date: new Date(transaction.get(2)),
+                type: transaction.get(4),
+                currency: transaction.get(13),
+                sum: convertToNumber(transaction.get(12)),
+                amount: convertToNumber(transaction.get(8)),
+                name: transaction.get(5),
+                id: transaction.get(0),
+              }))
+          });
+        }
       }).then(massagedData => dispatch({
         type: RETURN_LOAD_DATA,
         payload: massagedData

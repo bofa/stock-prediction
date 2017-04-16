@@ -27,6 +27,8 @@ function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+const priceList = companys.map((item, key) => <MenuItem value={key} primaryText={item.Name} />);
+
 class View extends Component {
 
   static propTypes = {
@@ -46,7 +48,7 @@ class View extends Component {
 
     const groupData = new Map({
       borsDataName: priceData.CountryUrlName,
-      selected: selected.map(index => groups.getIn([index, 0, 3]))
+      selected: selected.map(index => groups.getIn([index, 0, 'name']))
     });
 
     addToUserGroup(groupText, groupData);
@@ -64,18 +66,19 @@ class View extends Component {
     ];
 
     const table = groups.map((item, key) => {
-      const name = item.getIn([0, 3]);
-      const sumTransactions = item.reduce((sum, item) => sum + item.get(6), 0);
+      const name = item.getIn([0, 'name']);
+      const sumTransactions = item
+        .reduce((sum, item) => sum + item.get('sum'), 0);
 
       const numberOfShares = item
-        .filter(item => item.get(2) !== 'Utdelning')
-        .reduce((sum, item) => sum + item.get(4), 0);
+        .filter(item => !item.get('type') || item.get('type').toLowerCase() !== 'utdelning')
+        .reduce((sum, item) => sum + item.get('amount'), 0);
 
       const mappedData = item
-        .filter(item => isNumeric(item.get(6)))
-        .map((item) => ({
-          yearFrac: yearFrac(item.get(0)),
-          value: item.get(6)
+      .filter(item => isNumeric(item.get('sum')))
+      .map((item) => ({
+          yearFrac: yearFrac(item.get('date')),
+          value: item.get('sum')
         }));
 
       const intrest = internalIntrest(mappedData, 0);
@@ -83,24 +86,30 @@ class View extends Component {
       return [name, sumTransactions, numberOfShares, Math.round(100*intrest) + '%'];
     });
 
+    console.log('groups', groups.toJS());
+
     const table2 = userGroups.map((userGroup, name) => {
+      // return ['asdf'];
       const item = userGroup
         .get('selected')
         .reduce((acc, groupIndex) =>
-          acc.concat(groups.find((g) => g.getIn([0, 3]) === groupIndex))
+          acc.concat(groups.find((g) => g.getIn([0, 'name']) === groupIndex))
           , new List());
 
-      const sumTransactions = item.reduce((sum, item) => sum + item.get(6), 0);
+      console.log('userGroup', userGroup, 'item', item.toJS());
+
+      const sumTransactions = item
+        .reduce((sum, item) => sum + item.get('sum'), 0);
 
       const numberOfShares = item
-        .filter(item => item.get(2) !== 'Utdelning')
-        .reduce((sum, item) => sum + item.get(4), 0);
+        .filter(item => item.get('type') !== 'Utdelning')
+        .reduce((sum, item) => sum + item.get('amount'), 0);
 
       const mappedData = item
-        .filter(item => isNumeric(item.get(6)))
+        .filter(item => isNumeric(item.get('sum')))
         .map((item) => ({
-          yearFrac: yearFrac(item.get(0)),
-          value: item.get(6)
+          yearFrac: yearFrac(item.get('date')),
+          value: item.get('sum')
         }));
 
       const borsdataName = userGroup.get('borsDataName');
@@ -125,7 +134,7 @@ class View extends Component {
           value={this.state.dropDown}
           onChange={(event, index, value) => this.setState({ dropdown: value })}
         >
-          {companys.map((item, key) => <MenuItem value={key} primaryText={item.Name} />)}
+          {priceList}
         </DropDownMenu>
         <Table
           headers={headers}
@@ -149,7 +158,7 @@ function mapStateToProps(state) {
     groups: state.returnReducer
       .get('transactions', new Map())
       .get('dataPoints', new Map())
-      .groupBy(point => point.get(3))
+      .groupBy(point => point.get('name'))
       .toList(),
     // transactions: state.returnReducer.get('transactions', new Map()),
     stocks: state.stockReducer,
