@@ -1,6 +1,6 @@
 export default function iterateIntreset(values, nowValue) {
 
-  console.log('values', values.toJS());
+  // console.log('values', values.toJS());
 
   var iterator = 0;
   var iteratorMax = 100;
@@ -12,10 +12,9 @@ export default function iterateIntreset(values, nowValue) {
 
   do {
     intreset = rantaLow + (rantaHigh-rantaLow)/2;
-    sum = values.reduce((sum, item) => {
-      // console.log('item', item);
-      return sum + item.value * (1 + intreset) ** item.yearFrac;
-    }, nowValue);
+    sum = values.reduce(
+      (sum, item) => sum + item.value * (1 + intreset) ** item.yearFrac
+      , nowValue);
 
     if (sum>0){
       rantaLow = intreset;
@@ -25,8 +24,6 @@ export default function iterateIntreset(values, nowValue) {
 
     ++iterator;
   } while( Math.abs(sum)>1 && iterator<iteratorMax );
-
-  console.log('iterator', iterator, 'intrest', intreset);
 
   return intreset;
 }

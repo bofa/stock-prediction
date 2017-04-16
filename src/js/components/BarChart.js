@@ -145,7 +145,7 @@ const DatamodelGraph = React.createClass({
     }
 
     function dragEnded() {
-      console.log('drag Ended!');
+      // console.log('drag Ended!');
       onChange([
         yInv(box2.attr('cy')),
         (yInv(box2.attr('cy')) - yInv(box1.attr('cy'))) / 9

@@ -1,17 +1,19 @@
-import { Map, fromJS } from 'immutable';
+import { Map, fromJS, List } from 'immutable';
 import LS from 'local-storage';
 import axios from 'axios';
 
 const localStorageIndex = 'avanzaTransactions';
 
 const storageJson = LS.get(localStorageIndex);
+// const storageJson = undefined;
 const localStorage = storageJson ? JSON.parse(storageJson) :
-{ userGroups: [] };
+{ userGroups: {} };
 
 const initialState = fromJS(localStorage);
 
 const RETURN_LOAD_DATA = 'RETURN_LOAD_DATA';
 const RETURN_CREATE_GROUP = 'RETURN_CREATE_GROUP';
+const RETURN_ADD_TO_GROUP = 'RETURN_ADD_TO_GROUP';
 
 function convertToNumber(str) {
   if(str) {
@@ -30,7 +32,7 @@ export function loadFile(acceptedFiles) {
         .map(line => line.split(';'));
 
         const csv = fromJS(csvJS);
-        console.log('csvJS', csvJS);
+        // console.log('csvJS', csvJS);
 
         return new Map({
           headers: csv.get(0),
@@ -49,9 +51,16 @@ export function loadFile(acceptedFiles) {
   };
 }
 
-export function addToUserGroup(userGroup, group) {
+export function createUserGroup(userGroup) {
   return {
     type: RETURN_CREATE_GROUP,
+    userGroup
+  };
+}
+
+export function addToUserGroup(userGroup, group) {
+  return {
+    type: RETURN_ADD_TO_GROUP,
     userGroup,
     group
   };
@@ -67,10 +76,16 @@ export default function (state = initialState, action) {
     }
 
     case RETURN_CREATE_GROUP: {
-      newState = state.updateIn(
+      newState = state.setIn(['userGroups', action.userGroup], new List());
+      break;
+    }
+
+    case RETURN_ADD_TO_GROUP: {
+      console.log('action', action);
+      newState = state.setIn(
         ['userGroups', action.userGroup],
-        (list) => list.push(action.group),
-        action.group);
+        action.group
+      );
       break;
     }
   }

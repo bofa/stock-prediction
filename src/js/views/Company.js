@@ -43,7 +43,7 @@ class View extends Component {
   }
 
   removeCompany = () => {
-    console.log('running remove');
+    // console.log('running remove');
     const shortName = this.props.params.company;
     this.props.mergeCompany(shortName, {
       hide: true

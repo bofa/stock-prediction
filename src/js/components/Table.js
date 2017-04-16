@@ -5,24 +5,30 @@ import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowCol
 export default class App extends Component {
   static propTypes = {
     headers: PropTypes.array.isRequired,
-    table: PropTypes.array.isRequired
+    table: PropTypes.array.isRequired,
+    checkbox: PropTypes.bool,
+    onRowSelection: PropTypes.func
   };
 
   render() {
-    const { headers, table } = this.props;
+    const { headers, table, checkbox, onRowSelection } = this.props;
 
     return (
-      <Table>
+      <Table
+        multiSelectable
+        onRowSelection={onRowSelection}
+      >
         <TableHeader
-          displaySelectAll={false}
-          adjustForCheckbox={false}
+          displaySelectAll={checkbox}
+          adjustForCheckbox={checkbox}
         >
           <TableRow>
             {headers.map(header => <TableHeaderColumn>{header}</TableHeaderColumn>)}
           </TableRow>
         </TableHeader>
         <TableBody
-          displayRowCheckbox={false}
+          deselectOnClickaway={false}
+          displayRowCheckbox={checkbox}
         >
           {table.map((item) =>
             <TableRow>
