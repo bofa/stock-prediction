@@ -82,8 +82,6 @@ const DatamodelGraph = React.createClass({
     const y = v => zero - scale*v;
     const yInv = y => (zero - y)/scale;
 
-    // console.log('line', line, 'manipulableLine', manipulableLine);
-
     const svgBar = svg.selectAll("rect")
       .data(bars)
       .enter();
@@ -145,7 +143,6 @@ const DatamodelGraph = React.createClass({
     }
 
     function dragEnded() {
-      // console.log('drag Ended!');
       onChange([
         yInv(box2.attr('cy')),
         (yInv(box2.attr('cy')) - yInv(box1.attr('cy'))) / 9

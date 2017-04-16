@@ -44,8 +44,6 @@ class View extends Component {
     const { groupText, selected, dropdown } = this.state;
     const priceData = companys[dropdown];
 
-    console.log('groups', groups.toJS(), 'selected', selected);
-
     const groupData = new Map({
       borsDataName: priceData.CountryUrlName,
       selected: selected.map(index => groups.getIn([index, 0, 3]))
@@ -57,14 +55,6 @@ class View extends Component {
   render () {
     const { groups, addToUserGroup, createUserGroup, userGroups } = this.props;
     const { groupText } = this.state;
-
-    console.log('state', this.state);
-
-    // const tranHeaders = transactions.get('headers');
-      // .filter((item, key) => key === 'Handelsbanken A');
-
-    // console.log('Headers', tranHeaders.toJS());
-    // console.log('groups', groups.toJS());
 
     const headers = [
       'Group',
@@ -94,8 +84,6 @@ class View extends Component {
     });
 
     const table2 = userGroups.map((userGroup, name) => {
-      console.log('grouoeasdf', userGroup.toJS());
-      console.log('grouoasdfasdeasdf', groups.toJS());
       const item = userGroup
         .get('selected')
         .reduce((acc, groupIndex) =>
@@ -116,10 +104,8 @@ class View extends Component {
         }));
 
       const borsdataName = userGroup.get('borsDataName');
-      console.log('borsdataName', borsdataName, 'companys', companys);
       const price = companys.find(c => c.CountryUrlName === borsdataName).price;
       const value = numberOfShares*price;
-      console.log('price', price);
       const intrest = internalIntrest(mappedData, value);
 
       return [name, sumTransactions + value, numberOfShares, Math.round(100*intrest) + '%'];

@@ -42,7 +42,6 @@ class View extends Component {
   }
 
   removeCompany = () => {
-    // console.log('running remove');
     const shortName = this.props.params.company;
     this.props.mergeCompany(shortName, {
       hide: true
@@ -82,8 +81,6 @@ class View extends Component {
     const barsProjection = getProjection(combinedData, projectionTime);
 
     const combinedBars = bars.concat(barsProjection);
-
-    console.log('combinedBars', combinedBars, 'barsProjection', barsProjection);
 
     return (
       <div>

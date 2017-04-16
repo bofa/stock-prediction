@@ -1,7 +1,4 @@
 export default function iterateIntreset(values, nowValue) {
-
-  // console.log('values', values.toJS());
-
   var iterator = 0;
   var iteratorMax = 100;
 
@@ -27,4 +24,3 @@ export default function iterateIntreset(values, nowValue) {
 
   return intreset;
 }
-

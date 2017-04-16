@@ -32,7 +32,6 @@ export function loadFile(acceptedFiles) {
         .map(line => line.split(';'));
 
         const csv = fromJS(csvJS);
-        // console.log('csvJS', csvJS);
 
         return new Map({
           headers: csv.get(0),
@@ -81,7 +80,6 @@ export default function (state = initialState, action) {
     }
 
     case RETURN_ADD_TO_GROUP: {
-      console.log('action', action);
       newState = state.setIn(
         ['userGroups', action.userGroup],
         action.group

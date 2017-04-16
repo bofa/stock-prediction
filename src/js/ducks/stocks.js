@@ -84,7 +84,6 @@ export function mergeCompany(shortName, company) {
 export function loadBorsdata(name) {
   return (dispatch) => {
     axios.get(`https://borsdata.se/api/ratio?companyUrlName=${name}&ratioType=1`).then((response) => {
-      console.log(response);
       return dispatch({
         type: STOCK_APP_LOAD_DATA,
         name,
