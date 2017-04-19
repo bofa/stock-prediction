@@ -10,7 +10,7 @@ import { Map } from 'immutable';
 // import { Grid, Row, Col } from 'react-flexbox-grid';
 // import Measure from 'react-measure';
 import IconButton from 'material-ui/IconButton';
-import earningsEstimate, { getProjection } from '../services/ls';
+import earningsEstimate, { getProjection, yearsToPayOff } from '../services/ls';
 import { rootRoute } from '../routes';
 
 // const yieldArray = stocks.getIn([stock, 5, 'Sparkline'], new List());
@@ -102,7 +102,8 @@ class View extends Component {
             delete
           </IconButton>
           {' ' + staticStockData.get('Name') + ', '}
-          {Math.round(1000 * earningsEstimate(combinedData, projectionTime)) / 10}%
+          {Math.round(1000 * earningsEstimate(combinedData, projectionTime)) / 10}% / y,
+          {' ' + Math.round(10 * yearsToPayOff(combinedData)) / 10 + 'y'}
         </h1>
         <BarChart
           width={600}

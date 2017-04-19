@@ -10,7 +10,7 @@ import bdIcon from '../../images/bd.png';
 import Table from '../components/Table';
 import Filter from '../components/Filter';
 import companys from '../data';
-import earningsEstimate from '../services/ls';
+import earningsEstimate, { yearsToPayOff } from '../services/ls';
 
 import { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength } from '../ducks/filter';
 
@@ -52,6 +52,7 @@ class StockApp extends Component {
     const headers = [
       'Name',
       'Estimated Return',
+      'Years To Payoff',
       'Yield',
       'P/E',
       'Avg Dividend Ratio'
@@ -67,6 +68,7 @@ class StockApp extends Component {
       <Link to={`${rootRoute}company/${company.get('ShortName')}`} >
         {Math.round(1000 * company.get('estimate')) / 10}%
       </Link>,
+      Math.round(10 * yearsToPayOff(company)) / 10 + ' y',
       Math.round(100 * company.getIn(['dividend', -1, 'yield']) / company.get('price')) + '%',
       Math.round(company.get('price') / company.getIn(['earnings', -1, 'yield'])),
       Math.round(100 * company.get('avgDividendRatio')) + '%'
@@ -83,7 +85,11 @@ class StockApp extends Component {
           setPositiveRevenuGrowth={setPositiveRevenuGrowth}
           setMinHistoryLength={setMinHistoryLength}
         />
-        <Table headers={headers} table={table} />
+        <Table
+          headers={headers}
+          table={table}
+          checkbox={false}
+        />
       </div>
     );
   }

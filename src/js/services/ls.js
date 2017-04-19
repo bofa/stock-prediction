@@ -30,6 +30,14 @@ export default function earningsEstimate(company, projectionTime) {
   return dividendRatio*(bias + projectionTime*slop/2) / price;
 }
 
+export function yearsToPayOff(company) {
+  const { earningsLs, avgDividendRatio, price } = company.toJS();
+  const dividendRatio = Math.min(avgDividendRatio, 0.8);
+
+  const [bias, slop, cov] = earningsLs;
+  return price / dividendRatio / (bias + slop/2);
+}
+
 export function getProjection(company, projectionTime) {
   const { earningsLs, avgDividendRatio } = company.toJS();
   const dividendRatio = Math.min(avgDividendRatio, 0.8);
