@@ -6,7 +6,7 @@ import Company from './views/Company';
 import Return from './views/Return';
 
 export const rootRoute = "/";
-// export const rootRoute = "/stock-prediction";
+// export const rootRoute = "/stock-prediction/";
 
 // const gitHubRepoName = 'stock-prediction';
 // // The domain for your site

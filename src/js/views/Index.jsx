@@ -51,7 +51,7 @@ class StockApp extends Component {
 
     const headers = [
       'Name',
-      'Estimated Return',
+      'Estimated Return / Year',
       'Years To Payoff',
       'Yield',
       'P/E',
@@ -68,7 +68,7 @@ class StockApp extends Component {
       <Link to={`${rootRoute}company/${company.get('ShortName')}`} >
         {Math.round(1000 * company.get('estimate')) / 10}%
       </Link>,
-      Math.round(10 * yearsToPayOff(company)) / 10 + ' y',
+      Math.round(10 * yearsToPayOff(company)) / 10,
       Math.round(100 * company.getIn(['dividend', -1, 'yield']) / company.get('price')) + '%',
       Math.round(company.get('price') / company.getIn(['earnings', -1, 'yield'])),
       Math.round(100 * company.get('avgDividendRatio')) + '%'
