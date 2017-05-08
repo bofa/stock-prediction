@@ -10,13 +10,18 @@ const PATHS = {
   app: path.resolve(__dirname, '../src/js'),
   styles: path.resolve(__dirname, '../src/styles'),
   images: path.resolve(__dirname, '../src/images'),
-  build: path.resolve(__dirname, '../build')
+  build: path.resolve(__dirname, '../build'),
+  '404': path.resolve(__dirname, '../src/404.html')
 };
 
 const plugins = [
   new CopyWebpackPlugin([
     {
       from: PATHS.images,
+      to: './'
+    },
+    {
+      from: PATHS['404'],
       to: './'
     }
   ]),
