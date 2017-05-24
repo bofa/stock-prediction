@@ -8,9 +8,6 @@
 - [Redux](http://redux.js.org/) as an incredibly simple way of modelling your data app state, with great community support.
 - [Redux DevTools](https://github.com/gaearon/redux-devtools) as a live-editing environment for your Redux apps.
 - [ESLint](http://eslint.org/) as a reporter for syntax and style issues. [eslint-plugin-react](https://github.com/yannickcr/eslint-plugin-react) for additional React specific linting rules.
-- [Sass](http://sass-lang.com/) as a compiler of CSS styles with variables, mixins, and more.
-- [Mocha](https://mochajs.org/) as a test framework.
-- [Chai](http://chaijs.com/) as a BDD assertion library that works along with `Mocha`.
 
 ## Getting Started
 
