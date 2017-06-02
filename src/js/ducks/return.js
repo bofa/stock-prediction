@@ -4,16 +4,21 @@ import axios from 'axios';
 
 const localStorageIndex = 'avanzaTransactions';
 
+LS.clear();
 const storageJson = LS.get(localStorageIndex);
 // const storageJson = undefined;
 const localStorage = storageJson ? JSON.parse(storageJson) :
-{ userGroups: {} };
+{
+  userGroups: {},
+  customCompanies: []
+};
 
 const initialState = fromJS(localStorage);
 
 const RETURN_LOAD_DATA = 'RETURN_LOAD_DATA';
 const RETURN_CREATE_GROUP = 'RETURN_CREATE_GROUP';
 const RETURN_ADD_TO_GROUP = 'RETURN_ADD_TO_GROUP';
+const RETURN_ADD_CUSTOM_COMPANY = 'RETURN_ADD_CUSTOM_COMPANY';
 
 function convertToNumber(str) {
   if(str) {
@@ -88,6 +93,23 @@ export function addToUserGroup(userGroup, group) {
   };
 }
 
+/**
+ *
+ * @param {String} userGroup
+ * @param {Number} price
+ */
+export function addCustomCompany(userGroup, price) {
+  console.log('price ä', price);
+  return {
+    type: RETURN_ADD_CUSTOM_COMPANY,
+    payload: {
+      // Name?
+      CountryUrlName: userGroup,
+      price,
+    },
+  };
+}
+
 export default function (state = initialState, action) {
   let newState = state;
 
@@ -107,6 +129,12 @@ export default function (state = initialState, action) {
         ['userGroups', action.userGroup],
         action.group
       );
+      break;
+    }
+
+    case RETURN_ADD_CUSTOM_COMPANY: {
+      newState = state
+        .update('customCompanies', comp => comp.concat(action.payload));
       break;
     }
   }
