@@ -89,16 +89,19 @@ function reduceCompanyData(company, index, companyNames, priceArray) {
     avgRevenue,
     revenueLs
   };
-};
+}
 
 function delayApiCall(comp, delay = 20000) {
   // return axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`);
   return new Promise((resolve, reject) => {
     setTimeout(() => axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`)
       .then(response => resolve(response))
-      .catch(() => setTimeout(
-        () => axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`).then(response => resolve(response))
-        , delay))
+      .catch(() => {
+        setTimeout(() => axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`)
+          .then(response => resolve(response))
+          , delay);
+        console.log(`Retrying: ${comp.CountryUrlName}`);
+      })
     , delay);
   });
 }

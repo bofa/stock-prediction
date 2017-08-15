@@ -18,9 +18,11 @@ export default class Filter extends Component {
     positiveEarningsGrowth: PropTypes.boolean,
     positiveRevenuGrowth: PropTypes.boolean,
     minHistoryLength: PropTypes.integer,
+    minCorrelation: PropTypes.number,
     setPositiveEarningsGrowth: PropTypes.func,
     setPositiveRevenuGrowth: PropTypes.func,
-    setMinHistoryLength: PropTypes.func
+    setMinHistoryLength: PropTypes.func,
+    setMinCorrelation: PropTypes.func
   };
 
   state = {
@@ -30,8 +32,8 @@ export default class Filter extends Component {
   handleToggle = () => this.setState({open: !this.state.open});
 
   render() {
-    const { positiveEarningsGrowth, positiveRevenuGrowth, minHistoryLength } = this.props;
-    const { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength } = this.props;
+    const { positiveEarningsGrowth, positiveRevenuGrowth, minHistoryLength, minCorrelation } = this.props;
+    const { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength, setMinCorrelation } = this.props;
 
     return (
       <div>
@@ -60,6 +62,7 @@ export default class Filter extends Component {
             onToggle={(e, active) => setPositiveRevenuGrowth(active)}
           />
 
+          <p>Min History Length</p>
           <ToolbarTitle text={minHistoryLength} />
           <Slider
             value={minHistoryLength}
@@ -67,6 +70,16 @@ export default class Filter extends Component {
             min={1} max={10} step={1}
             onChange={(e, value) => setMinHistoryLength(value)}
           />
+
+          <p>Correlation Coefficient Limit</p>
+          <ToolbarTitle text={minCorrelation} />
+          <Slider
+            value={minCorrelation}
+            style={{width: 200}}
+            min={0} max={1}
+            onChange={(e, value) => setMinCorrelation(value)}
+          />
+
           <MenuItem
             onClick={() => browserHistory.push(rootRoute + 'return')}
           >
