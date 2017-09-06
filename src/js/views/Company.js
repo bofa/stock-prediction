@@ -66,6 +66,9 @@ class View extends Component {
     const revenueLsStatic = staticStockData.get('revenueLs');
     const revenueLs = staticStockData.get('revenueLs');
 
+    // console.log('staticStockData', staticStockData.toJS());
+    // console.log('dynamicStockData', dynamicStockData.toJS());
+
     const bars = revenue.mergeWith(
       (earning, revenue) => ({
         year: revenue.get('year'),

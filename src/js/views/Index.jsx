@@ -1,4 +1,4 @@
-import { List } from 'immutable';
+import { List, Map } from 'immutable';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -11,6 +11,7 @@ import Table from '../components/Table';
 import Filter from '../components/Filter';
 import companys from '../data';
 import earningsEstimate, { yearsToPayOff } from '../services/ls';
+import { quote, borsdataToYahoo } from '../services/price';
 
 import { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength, setMinCorrelation } from '../ducks/filter';
 
@@ -33,13 +34,25 @@ class StockApp extends Component {
     setMinCorrelation: PropTypes.func
   };
 
+  state = {
+    companies: new Map()
+  }
+
+  componentWillMount() {
+    borsdataToYahoo.forEach((yahooTicker, bdTicker) => quote(yahooTicker)
+      .then(price => this.setState({ companies: this.state.companies.setIn([bdTicker, 'price'], price)}))
+    );
+  }
+
   render() {
     const { stocks, positiveEarningsGrowth, positiveRevenuGrowth, minHistoryLength, projectionTime, minCorrelation } = this.props;
     const { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength, setMinCorrelation } = this.props;
+    const stateCompanies = this.state.companies;
 
     // const correlationCoefficientLimit = 0.5;
+    // console.log('state', this.state.companies.toJS());
 
-    const companysMerge = companys.mergeDeep(stocks)
+    const companysMerge = companys.mergeDeep(stocks).mergeDeep(stateCompanies)
       .filter(company => !company.getIn(['hide']))
       .filter(company => company.getIn(['historyLength']) >= minHistoryLength)
       .filter(company => !(positiveEarningsGrowth && company.getIn(['earningsLs', 1]) < 0))
@@ -53,6 +66,8 @@ class StockApp extends Component {
 
     // console.log('companysMerge', companysMerge.toJS());
     // console.log('this.state', this.state);
+
+    // console.log('companysMerge', companysMerge.map(c => c.get('ShortName')).toJS());
 
     const headers = [
       'Name',
