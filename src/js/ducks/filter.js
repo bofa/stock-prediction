@@ -7,7 +7,8 @@ import { fromJS } from 'immutable';
 const initialState = fromJS({
   positiveEarningsGrowth: true,
   positiveRevenuGrowth: true,
-  minHistoryLength: 8
+  minHistoryLength: 8,
+  minCorrelation: 0.5
 });
 
 const FILTER_SET_PARAM = 'FILTER_SET_PARAM';
@@ -32,6 +33,14 @@ export function setMinHistoryLength(years) {
   return {
     type: FILTER_SET_PARAM,
     path: ['minHistoryLength'],
+    value: years
+  };
+}
+
+export function setMinCorrelation(years) {
+  return {
+    type: FILTER_SET_PARAM,
+    path: ['minCorrelation'],
     value: years
   };
 }

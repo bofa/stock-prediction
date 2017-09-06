@@ -12,7 +12,7 @@ import Filter from '../components/Filter';
 import companys from '../data';
 import earningsEstimate, { yearsToPayOff } from '../services/ls';
 
-import { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength } from '../ducks/filter';
+import { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength, setMinCorrelation } from '../ducks/filter';
 
 // const buttonStyle = {
 //   margin: 12,
@@ -25,21 +25,26 @@ class StockApp extends Component {
     positiveEarningsGrowth: PropTypes.boolean,
     positiveRevenuGrowth: PropTypes.boolean,
     minHistoryLength: PropTypes.integer,
+    minCorrelation: PropTypes.number,
     projectionTime: PropTypes.integer,
     setPositiveEarningsGrowth: PropTypes.func,
     setPositiveRevenuGrowth: PropTypes.func,
-    setMinHistoryLength: PropTypes.func
+    setMinHistoryLength: PropTypes.func,
+    setMinCorrelation: PropTypes.func
   };
 
   render() {
-    const { stocks, positiveEarningsGrowth, positiveRevenuGrowth, minHistoryLength, projectionTime } = this.props;
-    const { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength } = this.props;
+    const { stocks, positiveEarningsGrowth, positiveRevenuGrowth, minHistoryLength, projectionTime, minCorrelation } = this.props;
+    const { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength, setMinCorrelation } = this.props;
+
+    // const correlationCoefficientLimit = 0.5;
 
     const companysMerge = companys.mergeDeep(stocks)
       .filter(company => !company.getIn(['hide']))
       .filter(company => company.getIn(['historyLength']) >= minHistoryLength)
-      .filter(company => positiveEarningsGrowth ? company.getIn(['earningsLs', 1]) >= 0 : true)
-      .filter(company => positiveRevenuGrowth ? company.getIn(['revenueLs', 1]) >= 0 : true)
+      .filter(company => !(positiveEarningsGrowth && company.getIn(['earningsLs', 1]) < 0))
+      .filter(company => !(positiveRevenuGrowth && company.getIn(['revenueLs', 1]) < 0))
+      .filter(company => company.getIn(['earningsLs', 3]) > minCorrelation)
       .map(company => company.set('estimate', earningsEstimate(company, projectionTime)))
       .filter(company => !isNaN(company.get('estimate')))
       .toList()
@@ -55,7 +60,8 @@ class StockApp extends Component {
       'Years To Payoff',
       'Yield',
       'P/E',
-      'Avg Dividend Ratio'
+      'Avg Dividend Ratio',
+      'Model Earnings Correlation'
     ];
 
     const table = companysMerge.map((company, key) => [
@@ -71,7 +77,8 @@ class StockApp extends Component {
       Math.round(10 * yearsToPayOff(company)) / 10,
       Math.round(100 * company.getIn(['dividend', -1, 'yield']) / company.get('price')) + '%',
       Math.round(company.get('price') / company.getIn(['earnings', -1, 'yield'])),
-      Math.round(100 * company.get('avgDividendRatio')) + '%'
+      Math.round(100 * company.get('avgDividendRatio')) + '%',
+      Math.round(100 * company.getIn(['earningsLs', 3])) / 100
     ]);
 
     return (
@@ -81,9 +88,11 @@ class StockApp extends Component {
           positiveEarningsGrowth={positiveEarningsGrowth}
           positiveRevenuGrowth={positiveRevenuGrowth}
           minHistoryLength={minHistoryLength}
+          minCorrelation={minCorrelation}
           setPositiveEarningsGrowth={setPositiveEarningsGrowth}
           setPositiveRevenuGrowth={setPositiveRevenuGrowth}
           setMinHistoryLength={setMinHistoryLength}
+          setMinCorrelation={setMinCorrelation}
         />
         <Table
           headers={headers}
@@ -101,6 +110,7 @@ function mapStateToProps(state) {
     positiveEarningsGrowth: state.filterReducer.get('positiveEarningsGrowth'),
     positiveRevenuGrowth: state.filterReducer.get('positiveRevenuGrowth'),
     minHistoryLength: state.filterReducer.get('minHistoryLength'),
+    minCorrelation: state.filterReducer.get('minCorrelation'),
     projectionTime: 5
   };
 }
@@ -109,7 +119,8 @@ function mapDispatchToProps(dispatch) {
   return {
     setPositiveEarningsGrowth: bindActionCreators(setPositiveEarningsGrowth, dispatch),
     setPositiveRevenuGrowth: bindActionCreators(setPositiveRevenuGrowth, dispatch),
-    setMinHistoryLength: bindActionCreators(setMinHistoryLength, dispatch)
+    setMinHistoryLength: bindActionCreators(setMinHistoryLength, dispatch),
+    setMinCorrelation: bindActionCreators(setMinCorrelation, dispatch),
   };
 }
 

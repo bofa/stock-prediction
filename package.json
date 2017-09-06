@@ -21,7 +21,7 @@
     "jscs": "jscs src/js/",
     "pages": "git add build/ & git commit -m \"new build\" & git push origin --delete gh-pages & git subtree push --prefix build origin gh-pages",
     "scrape": "babel-node --presets es2015 scrape/scrape.js",
-    "scrape-build": "npm run scrape && npm run build"
+    "scrapebuild": "npm run scrape && npm run build && npm run pages"
   },
   "devDependencies": {
     "babel-cli": "^6.24.0",

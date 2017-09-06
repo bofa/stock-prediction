@@ -19,7 +19,7 @@ export function leastSquarceEstimate(values) {
     return [mx, 0, Math.sqrt(variance)];
   }
 
-  return [mx - slope*mt + (N-1)*slope, slope, Math.sqrt(ssxx)];
+  return [mx - slope*mt + (N-1)*slope, slope, Math.sqrt(ssxx), sstx * sstx / sstt / ssxx];
 }
 
 export default function earningsEstimate(company, projectionTime) {
