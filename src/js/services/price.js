@@ -30,7 +30,10 @@ export const borsdataToYahoo = fromJS({
   "NET": 'NET-B.ST',
   "SHB": 'SHB-A.ST',
   "DEDI": 'DEDI.ST',
-  "AXFO": 'AXFO.ST'
+  "AXFO": 'AXFO.ST',
+  "MATAS": 'MATAS.CO',
+  "EPR": 'EPR.OL',
+  "SBO": 'SBO.OL'
   // "RESURS":
 });
 
