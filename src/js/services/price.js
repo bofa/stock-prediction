@@ -33,7 +33,12 @@ export const borsdataToYahoo = fromJS({
   "AXFO": 'AXFO.ST',
   "MATAS": 'MATAS.CO',
   "EPR": 'EPR.OL',
-  "SBO": 'SBO.OL'
+  "SBO": 'SBO.OL',
+  "INWI": 'INWI.ST',
+  "JM": 'JM.ST',
+  "TSLA": 'TSLA',
+  "GOOGL": 'GOOGL',
+  "NFLX": 'NFLX',
   // "RESURS":
 });
 

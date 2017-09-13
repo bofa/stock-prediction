@@ -11,8 +11,6 @@ import Table from '../components/Table';
 import Filter from '../components/Filter';
 import companys from '../data';
 import earningsEstimate, { yearsToPayOff } from '../services/ls';
-import { quote, borsdataToYahoo } from '../services/price';
-
 import { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength, setMinCorrelation } from '../ducks/filter';
 
 // const buttonStyle = {
@@ -36,12 +34,6 @@ class StockApp extends Component {
 
   state = {
     companies: new Map()
-  }
-
-  componentWillMount() {
-    borsdataToYahoo.forEach((yahooTicker, bdTicker) => quote(yahooTicker)
-      .then(price => this.setState({ companies: this.state.companies.setIn([bdTicker, 'price'], price)}))
-    );
   }
 
   render() {

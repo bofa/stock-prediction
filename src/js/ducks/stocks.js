@@ -1,6 +1,7 @@
 import axios from 'axios';
-import { fromJS, OrderedMap } from 'immutable';
+import { fromJS, Map } from 'immutable';
 import LS from 'local-storage';
+import { quote, borsdataToYahoo } from '../services/price';
 
 // import { data as companies } from '../../data/companies.json';
 
@@ -83,8 +84,7 @@ export function mergeCompany(shortName, company) {
 
 export function loadBorsdata(name) {
   return (dispatch) => {
-    axios.get(`https://borsdata.se/api/ratio?companyUrlName=${name}&ratioType=1`).then((response) => {
-      return dispatch({
+    axios.get(`https://borsdata.se/api/ratio?companyUrlName=${name}&ratioType=1`).then((response) => dispatch({
         type: STOCK_APP_LOAD_DATA,
         name,
         data: fromJS(response.data).map(item => item.update('Sparkline', lineString => lineString.split(',')
@@ -92,9 +92,16 @@ export function loadBorsdata(name) {
             year: currentYear + index - array.length,
             yield: Number(value)
           }))))
-      });
-    });
+      })
+    );
   };
+}
+
+export function loadYahoo() {
+  return (dispatch) => borsdataToYahoo.forEach((yahooTicker, bdTicker) => quote(yahooTicker)
+    // .then(price => this.setState({ companies: this.state.companies.setIn([bdTicker, 'price'], price)}))
+    .then(price => dispatch(mergeCompany(bdTicker, new Map({ price }))))
+  );
 }
 
 export default function (state = initialState, action) {
