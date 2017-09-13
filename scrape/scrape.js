@@ -95,7 +95,7 @@ function delayApiCall(comp, delay = 20000) {
   // return axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`);
   return new Promise((resolve, reject) => {
     setTimeout(() => axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`)
-      .then(response => resolve(response))
+      .then(response => { console.log(comp.CountryUrlName); return resolve(response); })
       .catch(() => {
         setTimeout(() => axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`)
           .then(response => resolve(response))
@@ -109,7 +109,7 @@ function delayApiCall(comp, delay = 20000) {
 function getHistoricData(prices) {
   Promise.all(companyNames
     // .filter((v, index) => index < 2)
-    .map((comp, index) => delayApiCall(comp, 400*index))
+    .map((comp, index) => delayApiCall(comp, 200*index))
   ).then(allResponse => allResponse.map(response => fromJS(response.data)
     .map(item => item.update('Sparkline', lineString => lineString.split(',')
       .map((value, index, array) => ({
