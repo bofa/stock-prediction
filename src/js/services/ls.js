@@ -22,12 +22,18 @@ export function leastSquarceEstimate(values) {
   return [mx - slope*mt + (N-1)*slope, slope, Math.sqrt(ssxx), sstx * sstx / sstt / ssxx];
 }
 
-export default function earningsEstimate(company, projectionTime) {
-  const { earningsLs, avgDividendRatio, price } = company.toJS();
-  const dividendRatio = Math.min(avgDividendRatio, 0.8);
+export function earningsEstimate(company, projectionTime, intrest=0) {
+  const { earningsLs, price, netBrowing } = company.toJS();
 
   const [bias, slop, cov] = earningsLs;
-  return dividendRatio*(bias + projectionTime*slop/2) / price;
+  return (bias + projectionTime*slop/2 - netBrowing*intrest) / price;
+}
+
+export function dividendEstimate(company, projectionTime, intrest) {
+  const { avgDividendRatio } = company.toJS();
+  const dividendRatio = Math.min(avgDividendRatio, 0.8);
+
+  return dividendRatio * earningsEstimate(company, projectionTime, intrest);
 }
 
 export function yearsToPayOff(company) {

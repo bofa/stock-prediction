@@ -6,23 +6,38 @@ import Toggle from 'material-ui/Toggle';
 import Slider from 'material-ui/Slider';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
+import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton';
 import RaisedButton from 'material-ui/RaisedButton';
 import { rootRoute } from '../routes';
+import { bindActionCreators } from 'redux';
+import {
+  setPositiveEarningsGrowth,
+  setPositiveRevenuGrowth,
+  setMinHistoryLength,
+  setMinCorrelation,
+  setSortOn,
+  setIntrest,
+} from '../ducks/filter';
+import { connect } from 'react-redux';
 
 const sliderStyle = {
-  textAlign: 'center'
+  width: 200
 };
 
-export default class Filter extends Component {
+class Filter extends Component {
   static propTypes = {
     positiveEarningsGrowth: PropTypes.boolean,
     positiveRevenuGrowth: PropTypes.boolean,
     minHistoryLength: PropTypes.integer,
     minCorrelation: PropTypes.number,
+    intrest: PropTypes.number,
     setPositiveEarningsGrowth: PropTypes.func,
     setPositiveRevenuGrowth: PropTypes.func,
     setMinHistoryLength: PropTypes.func,
-    setMinCorrelation: PropTypes.func
+    setMinCorrelation: PropTypes.func,
+    sortOn: PropTypes.string,
+    setSortOn: PropTypes.func,
+    setIntrest: PropTypes.func
   };
 
   state = {
@@ -32,8 +47,8 @@ export default class Filter extends Component {
   handleToggle = () => this.setState({open: !this.state.open});
 
   render() {
-    const { positiveEarningsGrowth, positiveRevenuGrowth, minHistoryLength, minCorrelation } = this.props;
-    const { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength, setMinCorrelation } = this.props;
+    const { positiveEarningsGrowth, positiveRevenuGrowth, minHistoryLength, minCorrelation, sortOn, intrest } = this.props;
+    const { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength, setMinCorrelation, setSortOn, setIntrest } = this.props;
 
     return (
       <div>
@@ -57,28 +72,50 @@ export default class Filter extends Component {
 
           <ToolbarTitle text="Revenue Growth" />
           <Toggle
-            style={sliderStyle}
             toggled={positiveRevenuGrowth}
             onToggle={(e, active) => setPositiveRevenuGrowth(active)}
           />
 
-          <p>Min History Length</p>
-          <ToolbarTitle text={minHistoryLength} />
+          <ToolbarTitle text={'Min History: ' + minHistoryLength} />
           <Slider
             value={minHistoryLength}
-            style={{width: 200}}
+            style={sliderStyle}
             min={1} max={10} step={1}
             onChange={(e, value) => setMinHistoryLength(value)}
           />
 
-          <p>Correlation Coefficient Limit</p>
-          <ToolbarTitle text={minCorrelation} />
+          <ToolbarTitle text={'Min Correlation Coefficient: ' + minCorrelation} />
           <Slider
             value={minCorrelation}
-            style={{width: 200}}
+            style={sliderStyle}
             min={0} max={1}
             onChange={(e, value) => setMinCorrelation(value)}
           />
+
+          <ToolbarTitle text={'Intrest offset: ' + Math.round(1000*intrest) / 10 + '%'} />
+          <Slider
+            value={100*intrest}
+            style={sliderStyle}
+            min={-10} max={10}
+            onChange={(e, value) => setIntrest(0.01*value)}
+          />
+
+          <ToolbarTitle text="Sort By" />
+          <RadioButtonGroup
+            valueSelected={sortOn}
+            onChange={(event, value) => setSortOn(value)}
+            name="shipSpeed"
+            defaultSelected="dividend"
+          >
+            <RadioButton
+              value="dividend"
+              label="Dividend"
+            />
+            <RadioButton
+              value="earnings"
+              label="Earnings"
+            />
+          </RadioButtonGroup>
 
           <MenuItem
             onClick={() => browserHistory.push(rootRoute + 'return')}
@@ -98,3 +135,29 @@ export default class Filter extends Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    stocks: state.stockReducer,
+    positiveEarningsGrowth: state.filterReducer.get('positiveEarningsGrowth'),
+    positiveRevenuGrowth: state.filterReducer.get('positiveRevenuGrowth'),
+    minHistoryLength: state.filterReducer.get('minHistoryLength'),
+    minCorrelation: state.filterReducer.get('minCorrelation'),
+    sortOn: state.filterReducer.get('sortOn'),
+    intrest: state.filterReducer.get('intrest'),
+    projectionTime: 5
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    setPositiveEarningsGrowth: bindActionCreators(setPositiveEarningsGrowth, dispatch),
+    setPositiveRevenuGrowth: bindActionCreators(setPositiveRevenuGrowth, dispatch),
+    setMinHistoryLength: bindActionCreators(setMinHistoryLength, dispatch),
+    setMinCorrelation: bindActionCreators(setMinCorrelation, dispatch),
+    setSortOn: bindActionCreators(setSortOn, dispatch),
+    setIntrest: bindActionCreators(setIntrest, dispatch)
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Filter);

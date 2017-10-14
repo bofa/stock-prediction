@@ -10,8 +10,9 @@ import { Map } from 'immutable';
 // import { Grid, Row, Col } from 'react-flexbox-grid';
 // import Measure from 'react-measure';
 import IconButton from 'material-ui/IconButton';
-import earningsEstimate, { getProjection, yearsToPayOff } from '../services/ls';
+import { dividendEstimate, getProjection, yearsToPayOff } from '../services/ls';
 import { rootRoute } from '../routes';
+import bdIcon from '../../images/bd.png';
 
 // const yieldArray = stocks.getIn([stock, 5, 'Sparkline'], new List());
 
@@ -19,7 +20,8 @@ class View extends Component {
   static propTypes = {
     params: PropTypes.object.isRequired,
     stocks: PropTypes.object.isRequired,
-    mergeCompany: PropTypes.func.isRequired
+    mergeCompany: PropTypes.func.isRequired,
+    intrest: PropTypes.number
   };
 
   state = {
@@ -46,11 +48,11 @@ class View extends Component {
     this.props.mergeCompany(shortName, {
       hide: true
     });
-    browserHistory.push(rootPath);
+    browserHistory.push(rootRoute);
   }
 
   render () {
-    const { stocks, projectionTime } = this.props;
+    const { stocks, projectionTime, intrest } = this.props;
     const shortName = this.props.params.company;
     const staticStockData = data.get(shortName);
     const dynamicStockData = stocks.get(shortName, Map());
@@ -65,6 +67,8 @@ class View extends Component {
     const revenue = staticStockData.get('revenue');
     const revenueLsStatic = staticStockData.get('revenueLs');
     const revenueLs = staticStockData.get('revenueLs');
+
+    const countryUrlName = staticStockData.get('CountryUrlName');
 
     // console.log('staticStockData', staticStockData.toJS());
     // console.log('dynamicStockData', dynamicStockData.toJS());
@@ -105,8 +109,12 @@ class View extends Component {
             delete
           </IconButton>
           {' ' + staticStockData.get('Name') + ', '}
-          {Math.round(1000 * earningsEstimate(combinedData, projectionTime)) / 10}% / y,
+          {Math.round(1000 * dividendEstimate(combinedData, projectionTime, intrest)) / 10}% / y,
           {' ' + Math.round(10 * yearsToPayOff(combinedData)) / 10 + 'y'}
+          {' '}
+          <a href={`https://borsdata.se/${countryUrlName}/nyckeltal`} target="_blank">
+            <img border="0" alt="W3Schools" src={bdIcon} />
+          </a>
         </h1>
         <BarChart
           width={600}
@@ -125,6 +133,7 @@ class View extends Component {
 function mapStateToProps(state) {
   return {
     stocks: state.stockReducer,
+    intrest: state.filterReducer.get('intrest'),
     projectionTime: 5
   };
 }

@@ -8,7 +8,9 @@ const initialState = fromJS({
   positiveEarningsGrowth: true,
   positiveRevenuGrowth: true,
   minHistoryLength: 8,
-  minCorrelation: 0.5
+  minCorrelation: 0.5,
+  sortOn: 'dividend',
+  intrest: 0,
 });
 
 const FILTER_SET_PARAM = 'FILTER_SET_PARAM';
@@ -42,6 +44,22 @@ export function setMinCorrelation(years) {
     type: FILTER_SET_PARAM,
     path: ['minCorrelation'],
     value: years
+  };
+}
+
+export function setSortOn(value) {
+  return {
+    type: FILTER_SET_PARAM,
+    path: ['sortOn'],
+    value
+  };
+}
+
+export function setIntrest(value) {
+  return {
+    type: FILTER_SET_PARAM,
+    path: ['intrest'],
+    value
   };
 }
 

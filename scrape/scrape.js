@@ -1,10 +1,36 @@
 import axios from 'axios';
-import { fromJS } from 'immutable';
+import { fromJS, List, Map } from 'immutable';
 import writeJsonFile from 'write-json-file';
 import { data as companyNames } from './companies.json';
 import { leastSquarceEstimate } from '../src/js/services/ls';
 
 // console.log('companies', companies);
+
+function formatKpisResponseMain (response) {
+  return fromJS(response.data).map(item => item.update('Sparkline', lineString => lineString.split(',')
+    .map((value, index, array) => ({
+      year: currentYear + index - array.length,
+      yield: Number(value)
+    }))));
+}
+
+function formatKpisResponseSingle (response) {
+  const data = fromJS(response.data);
+
+  const Sparkline = data.get('Data').map((value, index, array) => new Map({
+    year: currentYear + index - array.length,
+    yield: Number(value)
+  }));
+
+  return data.set('Sparkline', Sparkline);
+}
+
+function consolePipe (pipe) {
+  console.log('pipe', pipe);
+  return pipe;
+}
+
+const empty = fromJS()
 
 const currentYear = 2017;
 // const companies = [{
@@ -37,67 +63,97 @@ const currentYear = 2017;
 
 function reduceCompanyData(company, index, companyNames, priceArray) {
   const metaData = companyNames[index];
-  // console.log('company', company);
+  // console.log('company', company.toJS());
   const priceObj = priceArray
     .find(screenerCompany => screenerCompany.ShortName === metaData.ShortName);
 
   const price = priceObj ? priceObj.Price : 0;
 
-  const dividend = company[4].Sparkline;
-  const earnings = company[5].Sparkline;
-  const revenue = company[6].Sparkline;
+  const dividend = company.getIn([4, 'Sparkline']);
+  const earnings = company.getIn([5, 'Sparkline']);
+  const revenue = company.getIn([6, 'Sparkline']);
 
-  const historyLength =  revenue
-    .filter(spark => spark.yield !== 0)
-    .length;
+  const solidity = company.getIn([-2, 'Sparkline', -1, 'yield']);
+  const netBrowing = company.getIn([-1, 'Sparkline', -1, 'yield']);
 
-  const avgDividendRatio = dividend
-    .map((d, i) => d.yield / earnings[i].yield)
-    .filter(dividendRatio => dividendRatio > 0 && dividendRatio < 2)
-    .reduce((out, ratio, i, array) => out + ratio/array.length, 0);
+  try {
+    const historyLength =  revenue
+      .filter(spark => spark.yield !== 0)
+      .length;
 
-  const avgEarnings = earnings
-    .map(spark => spark.yield)
-    .filter(value => value !== 0)
-    .reduce((out, ratio, i, array) => out + ratio/array.length, 0);
+    const avgDividendRatio = dividend
+      .map((d, i) => d.yield / earnings[i].yield)
+      .filter(dividendRatio => dividendRatio > 0 && dividendRatio < 2)
+      .reduce((out, ratio, i, array) => out + ratio/array.length, 0);
 
-  const avgRevenue = revenue
-    .map(spark => spark.yield)
-    .filter(value => value !== 0)
-    .reduce((out, ratio, i, array) => out + ratio/array.length, 0);
+    const avgEarnings = earnings
+      .map(spark => spark.yield)
+      .filter(value => value !== 0)
+      .reduce((out, ratio, i, array) => out + ratio/array.length, 0);
 
-  const earningsLs = leastSquarceEstimate(earnings
-    .map(spark => spark.yield)
-    .filter(value => value !== 0)
-  );
+    const avgRevenue = revenue
+      .map(spark => spark.yield)
+      .filter(value => value !== 0)
+      .reduce((out, ratio, i, array) => out + ratio/array.length, 0);
 
-  const revenueLs = leastSquarceEstimate(revenue
-    .map(spark => spark.yield)
-    .filter(value => value !== 0)
-  );
+    const earningsLs = leastSquarceEstimate(earnings
+      .map(spark => spark.yield)
+      .filter(value => value !== 0)
+    );
 
-  return {
-    ...metaData,
-    historyLength,
-    price,
-    avgDividendRatio,
-    dividend,
-    earnings,
-    avgEarnings,
-    earningsLs,
-    revenue,
-    avgRevenue,
-    revenueLs
-  };
+    const revenueLs = leastSquarceEstimate(revenue
+      .map(spark => spark.yield)
+      .filter(value => value !== 0)
+    );
+
+    return {
+      ...metaData,
+      historyLength,
+      price,
+      avgDividendRatio,
+      dividend,
+      earnings,
+      avgEarnings,
+      earningsLs,
+      revenue,
+      avgRevenue,
+      revenueLs,
+      solidity,
+      netBrowing
+    };
+  } catch (exception) {
+    console.warn('error metaData.ShortName', exception)
+    return metaData;
+  }
 }
 
 function delayApiCall(comp, delay = 20000) {
+  const call = () => Promise.all([
+    axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`)
+      .then(formatKpisResponseMain)
+      .catch(() => new List()),
+    axios.get(`https://borsdata.se/api/AnalysisHighChartSeries?analysisTime=0&companyUrl=${comp.CountryUrlName}&kpiId=39`)
+      .then(formatKpisResponseSingle)
+      .catch(() => {}),
+    axios.get(`https://borsdata.se/api/AnalysisHighChartSeries?analysisTime=0&companyUrl=${comp.CountryUrlName}&kpiId=73`,{
+      headers: { Cookie }})
+      .then(formatKpisResponseSingle)
+      .catch(() => {}),
+  ])
+  // .then(respone => { console.log('respone', respone.toJS()); return respone; })
+  .then(respones => respones[0].push(respones[1]).push(respones[2]));
+  // .then(respone => { console.log('respone', respone.toJS()); return respone; })
+
+  // const call = () => axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`)
+  //   .then(response => response.data)
+  //   .then(fromJS);
+
   // return axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`);
   return new Promise((resolve, reject) => {
-    setTimeout(() => axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`)
-      .then(response => { console.log(comp.CountryUrlName); return resolve(response); })
+    setTimeout(() => call()
+    .then(response => { console.log(comp.CountryUrlName); return resolve(response); })
       .catch(() => {
-        setTimeout(() => axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`)
+        setTimeout(() => call()
           .then(response => resolve(response))
           , delay);
         console.log(`Retrying: ${comp.CountryUrlName}`);
@@ -109,14 +165,10 @@ function delayApiCall(comp, delay = 20000) {
 function getHistoricData(prices) {
   Promise.all(companyNames
     // .filter((v, index) => index < 2)
-    .map((comp, index) => delayApiCall(comp, 200*index))
-  ).then(allResponse => allResponse.map(response => fromJS(response.data)
-    .map(item => item.update('Sparkline', lineString => lineString.split(',')
-      .map((value, index, array) => ({
-        year: currentYear + index - array.length,
-        yield: Number(value)
-      })))
-    ).toJS())
+    .map((comp, index) => delayApiCall(comp, 1000*index))
+  )
+  // .then(consolePipe)
+  .then(allResponse => allResponse
     .map((historicalData, index) => reduceCompanyData(historicalData, index, companyNames, prices))
   ).then((response) => writeJsonFile('src/js/data/earnings.json', response, { indent: null }))
   .then(() => console.log('done earnings'));
@@ -133,4 +185,3 @@ axios.post('https://borsdata.se/screener/GetCompaniesForScreener', {"filter":{"K
   .then(getHistoricData);
   // .then((reducedData) => writeJsonFile('price.json', reducedData, { indent: null }))
   // .then(() => console.log('done price'));
-
