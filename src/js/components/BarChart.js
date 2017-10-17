@@ -33,6 +33,10 @@ const DatamodelGraph = React.createClass({
   //   // this.props.init();
   // },
 
+  componentDidMount() {
+    this.componentWillReceiveProps(this.props);
+  },
+
   componentWillReceiveProps(nextProps) {
     const { name, onChange, bars, line, manipulableLine, width, height, projectionTime } = nextProps;
 
@@ -58,7 +62,7 @@ const DatamodelGraph = React.createClass({
 
     // Init transformations
 
-    var barWidth = 10;
+    var barWidth = 9;
 
     var x = d3.scaleLinear().domain([0, bars.length]).range([0, width]);
     // var y = d3.scaleLinear().domain([d3.min(bars, function(datum) { return datum.yield; }), d3.max(bars, function(datum) { return datum.yield; })]);
@@ -94,17 +98,25 @@ const DatamodelGraph = React.createClass({
       .attr("width", barWidth)
       .attr("fill", datum => datum.revenue > 0 ? "#123456" : "#ff0000");
 
+    // Free cash flow
+    svgBar.append("svg:rect")
+    .attr("x", (datum, index) => x(index) + barWidth)
+    .attr("y", function(datum) { return datum.freeCashFlow > 0 ? y(datum.freeCashFlow) : y(0); })
+    .attr("height", function(datum) { return scale*Math.abs(datum.freeCashFlow); })
+    .attr("width", barWidth)
+    .attr("fill", datum => datum.freeCashFlow > 0 ? "#0eefcd" : "#ff0000");
+
     // Earnings
     svgBar.append("svg:rect")
-      .attr("x", (datum, index) => x(index) + barWidth)
+      .attr("x", (datum, index) => x(index) + 2*barWidth)
       .attr("y", function(datum) { return datum.earnings > 0 ? y(datum.earnings) : y(0); })
       .attr("height", function(datum) { return scale*Math.abs(datum.earnings); })
       .attr("width", barWidth)
       .attr("fill", datum => datum.earnings > 0 ? "#2d578b" : "#ff0000");
 
-    // Earnings
+    // Dividend
     svgBar.append("svg:rect")
-      .attr("x", (datum, index) => x(index) + 2*barWidth)
+      .attr("x", (datum, index) => x(index) + 3*barWidth)
       .attr("y", function(datum) { return datum.dividend > 0 ? y(datum.dividend) : y(0); })
       .attr("height", function(datum) { return scale*Math.abs(datum.dividend); })
       .attr("width", barWidth)
@@ -168,10 +180,6 @@ const DatamodelGraph = React.createClass({
         .on("end", dragEnded));
 
     // this.animateFauxDOM(1000000000000);
-  },
-
-  componentDidMount() {
-    this.componentWillReceiveProps(this.props);
   },
 
   render() {

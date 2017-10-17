@@ -7,10 +7,12 @@ import { fromJS } from 'immutable';
 const initialState = fromJS({
   positiveEarningsGrowth: true,
   positiveRevenuGrowth: true,
+  positiveFreeCashFlowGrowth: false,
   minHistoryLength: 8,
   minCorrelation: 0.5,
   sortOn: 'dividend',
   intrest: 0,
+  projectionTime: 5,
 });
 
 const FILTER_SET_PARAM = 'FILTER_SET_PARAM';
@@ -27,6 +29,14 @@ export function setPositiveRevenuGrowth(active) {
   return {
     type: FILTER_SET_PARAM,
     path: ['positiveRevenuGrowth'],
+    value: active
+  };
+}
+
+export function setPositiveFreeCashFlowGrowth(active) {
+  return {
+    type: FILTER_SET_PARAM,
+    path: ['positiveFreeCashFlowGrowth'],
     value: active
   };
 }
@@ -59,6 +69,14 @@ export function setIntrest(value) {
   return {
     type: FILTER_SET_PARAM,
     path: ['intrest'],
+    value
+  };
+}
+
+export function setProjectionTime(value) {
+  return {
+    type: FILTER_SET_PARAM,
+    path: ['projectionTime'],
     value
   };
 }

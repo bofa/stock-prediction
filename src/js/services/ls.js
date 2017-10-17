@@ -52,6 +52,7 @@ export function getProjection(company, projectionTime) {
   return Array.from(Array(projectionTime), (e,i) => ({
     year: 'Not Set',
     revenue: 0,
+    freeCashFlow: 0,
     earnings: bias + (i+1)*slop,
     dividend: dividendRatio * (bias + (i+1)*slop)
   }));

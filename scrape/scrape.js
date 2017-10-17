@@ -3,6 +3,9 @@ import { fromJS, List, Map } from 'immutable';
 import writeJsonFile from 'write-json-file';
 import { data as companyNames } from './companies.json';
 import { leastSquarceEstimate } from '../src/js/services/ls';
+import axiosRetry from 'axios-retry';
+
+axiosRetry(axios, { retries: 3 });
 
 // console.log('companies', companies);
 
@@ -17,16 +20,29 @@ function formatKpisResponseMain (response) {
 function formatKpisResponseSingle (response) {
   const data = fromJS(response.data);
 
-  const Sparkline = data.get('Data').map((value, index, array) => new Map({
-    year: currentYear + index - array.length,
-    yield: Number(value)
-  }));
+  // const Sparkline = data.get('Data').map((value, index, array) => new Map({
+  //   year: currentYear + index - array.length,
+  //   yield: Number(value)
+  // }));
 
-  return data.set('Sparkline', Sparkline);
+  // return data.set('Sparkline', Sparkline);
+  return data;
 }
 
-function consolePipe (pipe) {
+function formatStockPriceData (response) {
+  const range = fromJS(response.data).slice(-90).map(item => item.get('y'));
+  const [bias, slope] = leastSquarceEstimate(range.toJS());
+  const relativeSlope = slope / range.get(-1);
+
+  return relativeSlope;
+}
+
+function consolePipe (pipe, override) {
   console.log('pipe', pipe);
+
+  if(override) {
+    return override;
+  }
   return pipe;
 }
 
@@ -61,7 +77,7 @@ const currentYear = 2017;
 
 // Get all the revenue and earnings
 
-function reduceCompanyData(company, index, companyNames, priceArray) {
+function reduceCompanyData(response, index, companyNames, priceArray) {
   const metaData = companyNames[index];
   // console.log('company', company.toJS());
   const priceObj = priceArray
@@ -69,12 +85,17 @@ function reduceCompanyData(company, index, companyNames, priceArray) {
 
   const price = priceObj ? priceObj.Price : 0;
 
-  const dividend = company.getIn([4, 'Sparkline']);
-  const earnings = company.getIn([5, 'Sparkline']);
-  const revenue = company.getIn([6, 'Sparkline']);
+  const dividend = response[0].getIn([4, 'Sparkline']);
+  const earnings = response[0].getIn([5, 'Sparkline']);
+  const revenue = response[0].getIn([6, 'Sparkline']);
 
-  const solidity = company.getIn([-2, 'Sparkline', -1, 'yield']);
-  const netBrowing = company.getIn([-1, 'Sparkline', -1, 'yield']);
+  const freeCashFlow = response[1].getIn([5, 'Sparkline']);
+
+  // const solidity = response[1].getIn(['Data', -1]);
+
+  const netBrowing = response[2].getIn(['Data', -1]);
+
+  const stockPriceMomentum = response[3];
 
   try {
     const historyLength =  revenue
@@ -106,6 +127,11 @@ function reduceCompanyData(company, index, companyNames, priceArray) {
       .filter(value => value !== 0)
     );
 
+    const freeCashFlowLs = leastSquarceEstimate(freeCashFlow
+      .map(spark => spark.yield)
+      .filter(value => value !== 0)
+    );
+
     return {
       ...metaData,
       historyLength,
@@ -118,11 +144,13 @@ function reduceCompanyData(company, index, companyNames, priceArray) {
       revenue,
       avgRevenue,
       revenueLs,
-      solidity,
-      netBrowing
+      freeCashFlow,
+      freeCashFlowLs,
+      netBrowing,
+      stockPriceMomentum
     };
   } catch (exception) {
-    console.warn('error metaData.ShortName', exception)
+    console.warn('error' + metaData.ShortName, exception);
     return metaData;
   }
 }
@@ -131,17 +159,21 @@ function delayApiCall(comp, delay = 20000) {
   const call = () => Promise.all([
     axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`)
       .then(formatKpisResponseMain)
-      .catch(() => new List()),
-    axios.get(`https://borsdata.se/api/AnalysisHighChartSeries?analysisTime=0&companyUrl=${comp.CountryUrlName}&kpiId=39`)
-      .then(formatKpisResponseSingle)
-      .catch(() => {}),
+      .catch(() => consolePipe('Error1!', new List())),
+    axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=3`, {
+        headers: { Cookie }})
+      .then(formatKpisResponseMain)
+      .catch(() => consolePipe('Error2!', new Map())),
     axios.get(`https://borsdata.se/api/AnalysisHighChartSeries?analysisTime=0&companyUrl=${comp.CountryUrlName}&kpiId=73`,{
-      headers: { Cookie }})
+        headers: { Cookie }})
       .then(formatKpisResponseSingle)
+      .catch(() => consolePipe('Error3!', new Map())),
+    axios.get(`https://borsdata.se/api/highchart?companyUrlName=${comp.CountryUrlName}`)
+      .then(formatStockPriceData)
       .catch(() => {}),
-  ])
+  ]);
   // .then(respone => { console.log('respone', respone.toJS()); return respone; })
-  .then(respones => respones[0].push(respones[1]).push(respones[2]));
+  // .then(respones => respones[0].push(respones[1]).push(respones[2]));
   // .then(respone => { console.log('respone', respone.toJS()); return respone; })
 
   // const call = () => axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`)
@@ -164,8 +196,9 @@ function delayApiCall(comp, delay = 20000) {
 
 function getHistoricData(prices) {
   Promise.all(companyNames
-    // .filter((v, index) => index < 2)
-    .map((comp, index) => delayApiCall(comp, 1000*index))
+    // .filter((v, index) => index < 4)
+    // .filter((v, index) => index < 40)
+    .map((comp, index) => delayApiCall(comp, 2000*index))
   )
   // .then(consolePipe)
   .then(allResponse => allResponse
@@ -175,7 +208,6 @@ function getHistoricData(prices) {
 }
 
 // Get the price
-
 axios.post('https://borsdata.se/screener/GetCompaniesForScreener', {"filter":{"KpiFilter":[{"CategoryId":11,"AdditionalId":1001,"KpiId":1,"CalculationType":3,"Calculation":0,"CalcTime":0},{"CategoryId":9,"AdditionalId":1,"KpiId":151,"CalculationType":2,"Calculation":20,"CalcTime":0},{"CategoryId":10,"AdditionalId":157,"KpiId":157,"CalculationType":2,"Calculation":31,"CalcTime":19},{"CategoryId":9,"AdditionalId":151,"KpiId":151,"CalculationType":2,"Calculation":20,"CalcTime":6},{"CategoryId":0,"AdditionalId":1,"KpiId":1,"CalculationType":2,"Calculation":1,"CalcTime":0},{"CategoryId":0,"AdditionalId":2,"KpiId":2,"CalculationType":2,"Calculation":1,"CalcTime":0},{"CategoryId":0,"AdditionalId":3,"KpiId":3,"CalculationType":2,"Calculation":1,"CalcTime":0},{"CategoryId":0,"AdditionalId":4,"KpiId":4,"CalculationType":2,"Calculation":1,"CalcTime":0}],"OnlyStocks":true,"OnlyIndexes":true,"OnlyPref":true,"OnlyFinansSector":true}})
   // .then(console.log)
   .then(response => response.data.data.map(company => ({

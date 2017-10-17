@@ -68,6 +68,8 @@ class View extends Component {
     const revenueLsStatic = staticStockData.get('revenueLs');
     const revenueLs = staticStockData.get('revenueLs');
 
+    const freeCashFlow = staticStockData.get('freeCashFlow');
+
     const countryUrlName = staticStockData.get('CountryUrlName');
 
     // console.log('staticStockData', staticStockData.toJS());
@@ -83,6 +85,10 @@ class View extends Component {
         ...merged,
         dividend: dividend.get('yield')
       }), dividend)
+      .mergeWith((merged, freeCashFlow) => ({
+        ...merged,
+        freeCashFlow: freeCashFlow.get('yield')
+      }), freeCashFlow)
       .toJS();
 
     const barsProjection = getProjection(combinedData, projectionTime);
@@ -117,7 +123,7 @@ class View extends Component {
           </a>
         </h1>
         <BarChart
-          width={600}
+          width={800}
           height={400}
           name="Revenue"
           bars={combinedBars}
@@ -134,7 +140,7 @@ function mapStateToProps(state) {
   return {
     stocks: state.stockReducer,
     intrest: state.filterReducer.get('intrest'),
-    projectionTime: 5
+    projectionTime: state.filterReducer.get('projectionTime'),
   };
 }
 

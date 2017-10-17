@@ -13,10 +13,12 @@ import { bindActionCreators } from 'redux';
 import {
   setPositiveEarningsGrowth,
   setPositiveRevenuGrowth,
+  setPositiveFreeCashFlowGrowth,
   setMinHistoryLength,
   setMinCorrelation,
   setSortOn,
   setIntrest,
+  setProjectionTime
 } from '../ducks/filter';
 import { connect } from 'react-redux';
 
@@ -28,11 +30,14 @@ class Filter extends Component {
   static propTypes = {
     positiveEarningsGrowth: PropTypes.boolean,
     positiveRevenuGrowth: PropTypes.boolean,
+    positiveFreeCashFlowGrowth: PropTypes.boolean,
     minHistoryLength: PropTypes.integer,
     minCorrelation: PropTypes.number,
     intrest: PropTypes.number,
+    projectionTime: PropTypes.number,
     setPositiveEarningsGrowth: PropTypes.func,
     setPositiveRevenuGrowth: PropTypes.func,
+    setPositiveFreeCashFlowGrowth: PropTypes.func,
     setMinHistoryLength: PropTypes.func,
     setMinCorrelation: PropTypes.func,
     sortOn: PropTypes.string,
@@ -47,8 +52,16 @@ class Filter extends Component {
   handleToggle = () => this.setState({open: !this.state.open});
 
   render() {
-    const { positiveEarningsGrowth, positiveRevenuGrowth, minHistoryLength, minCorrelation, sortOn, intrest } = this.props;
-    const { setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength, setMinCorrelation, setSortOn, setIntrest } = this.props;
+    const { positiveEarningsGrowth,
+      positiveRevenuGrowth,
+      minHistoryLength,
+      minCorrelation,
+      sortOn,
+      intrest,
+      positiveFreeCashFlowGrowth,
+      projectionTime
+    } = this.props;
+    const { setProjectionTime, setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength, setMinCorrelation, setSortOn, setIntrest, setPositiveFreeCashFlowGrowth } = this.props;
 
     return (
       <div>
@@ -76,6 +89,12 @@ class Filter extends Component {
             onToggle={(e, active) => setPositiveRevenuGrowth(active)}
           />
 
+          <ToolbarTitle text="Cash Flow Growth" />
+          <Toggle
+            toggled={positiveFreeCashFlowGrowth}
+            onToggle={(e, active) => setPositiveFreeCashFlowGrowth(active)}
+          />
+
           <ToolbarTitle text={'Min History: ' + minHistoryLength} />
           <Slider
             value={minHistoryLength}
@@ -98,6 +117,14 @@ class Filter extends Component {
             style={sliderStyle}
             min={-10} max={10}
             onChange={(e, value) => setIntrest(0.01*value)}
+          />
+
+          <ToolbarTitle text={'Projection Time: ' + projectionTime} />
+          <Slider
+            value={projectionTime}
+            style={sliderStyle}
+            min={1} max={20} step={1}
+            onChange={(e, value) => setProjectionTime(value)}
           />
 
           <ToolbarTitle text="Sort By" />
@@ -141,11 +168,12 @@ function mapStateToProps(state) {
     stocks: state.stockReducer,
     positiveEarningsGrowth: state.filterReducer.get('positiveEarningsGrowth'),
     positiveRevenuGrowth: state.filterReducer.get('positiveRevenuGrowth'),
+    positiveFreeCashFlowGrowth: state.filterReducer.get('positiveFreeCashFlowGrowth'),
     minHistoryLength: state.filterReducer.get('minHistoryLength'),
     minCorrelation: state.filterReducer.get('minCorrelation'),
     sortOn: state.filterReducer.get('sortOn'),
     intrest: state.filterReducer.get('intrest'),
-    projectionTime: 5
+    projectionTime: state.filterReducer.get('projectionTime'),
   };
 }
 
@@ -153,10 +181,12 @@ function mapDispatchToProps(dispatch) {
   return {
     setPositiveEarningsGrowth: bindActionCreators(setPositiveEarningsGrowth, dispatch),
     setPositiveRevenuGrowth: bindActionCreators(setPositiveRevenuGrowth, dispatch),
+    setPositiveFreeCashFlowGrowth: bindActionCreators(setPositiveFreeCashFlowGrowth, dispatch),
     setMinHistoryLength: bindActionCreators(setMinHistoryLength, dispatch),
     setMinCorrelation: bindActionCreators(setMinCorrelation, dispatch),
     setSortOn: bindActionCreators(setSortOn, dispatch),
-    setIntrest: bindActionCreators(setIntrest, dispatch)
+    setIntrest: bindActionCreators(setIntrest, dispatch),
+    setProjectionTime: bindActionCreators(setProjectionTime, dispatch)
   };
 }
 
