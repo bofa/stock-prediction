@@ -10,11 +10,36 @@ import bdIcon from '../../images/bd.png';
 import Table from '../components/Table';
 import Filter from '../components/Filter';
 import companys from '../data';
+import { intrest as investmentIntrestGroups, saftyMargin } from '../data/manualData';
 import { dividendEstimate, earningsEstimate, yearsToPayOff } from '../services/ls';
+
+
 
 // const buttonStyle = {
 //   margin: 12,
 // };
+
+function parseMargin(marginType, company) {
+  if(marginType === 'none') {
+    return [1, 0, 'none'];
+  } else if(marginType === 'best') {
+    //TODO Bugg!!
+    const maxMargin = company.get('margin', Map()).max();
+    const key = company.keyOf(maxMargin);
+    const intrest = investmentIntrestGroups.get(key);
+    const leverage = 1/(1-saftyMargin*maxMargin);
+    const cost = intrest*(leverage - 1);
+
+    return [leverage, cost, key];
+  } else {
+    const margin = company.getIn(['margin', marginType], 0);
+    const intrest = investmentIntrestGroups.get(marginType);
+    const leverage = 1/(1-saftyMargin*margin);
+    const cost = intrest*(leverage - 1);
+
+    return [leverage, cost, marginType];
+  }
+}
 
 class StockApp extends Component {
   static propTypes = {
@@ -26,7 +51,8 @@ class StockApp extends Component {
     minCorrelation: PropTypes.number,
     projectionTime: PropTypes.integer,
     sortOn: PropTypes.string,
-    intrest: PropTypes.number
+    intrest: PropTypes.number,
+    leverageType: PropTypes.string,
   };
 
   state = {
@@ -43,15 +69,22 @@ class StockApp extends Component {
       projectionTime,
       minCorrelation,
       sortOn,
-      intrest
+      intrest,
+      leverageType
     } = this.props;
 
-    const sorter = company => {
+    function sorter(company) {
       if(sortOn === 'earnings')
         return -company.get('earningsEstimate');
 
       return -company.get('estimate');
-    };
+    }
+
+    function freeCashFlowVsDividend (company) {
+      return company.get('freeCashFlow').reduce((sum, cash) => sum + cash.get('yield'), 0)
+      - company.get('dividend').reduce((sum, cash) => sum + cash.get('yield'), 0)
+      > 0;
+    }
 
     const companysMerge = companys.mergeDeep(stocks)
       .filter(company => !company.getIn(['hide']))
@@ -60,13 +93,20 @@ class StockApp extends Component {
       .filter(company => !(positiveRevenuGrowth && company.getIn(['revenueLs', 1]) < 0))
       .filter(company => !(positiveFreeCashFlowGrowth && company.getIn(['freeCashFlowLs', 1]) < 0))
       .filter(company => company.getIn(['earningsLs', 3]) > minCorrelation)
-      .map(company => company
-        .set('estimate', dividendEstimate(company, projectionTime, intrest))
-        .set('earningsEstimate', earningsEstimate(company, projectionTime)))
+      .filter(company => !positiveRevenuGrowth || freeCashFlowVsDividend(company))
+      .map(company => {
+        const [leverage, cost, type] = parseMargin(leverageType, company);
+
+        return company
+        .set('estimate', leverage*dividendEstimate(company, projectionTime, intrest) - cost)
+        .set('earningsEstimate', leverage*earningsEstimate(company, projectionTime) - cost);
+      })
       // .filter(company => !isNaN(company.get('estimate')))
       .toList()
       .sortBy(sorter);
       // .filter((value, index) => index < 100);
+
+    console.log('qasdf', companysMerge.toJS());
 
     const headers = [
       'Name',
@@ -119,6 +159,7 @@ function mapStateToProps(state) {
     sortOn: state.filterReducer.get('sortOn'),
     intrest: state.filterReducer.get('intrest'),
     projectionTime: state.filterReducer.get('projectionTime'),
+    leverageType: state.filterReducer.get('leverage'),
   };
 }
 

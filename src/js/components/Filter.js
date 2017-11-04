@@ -18,7 +18,8 @@ import {
   setMinCorrelation,
   setSortOn,
   setIntrest,
-  setProjectionTime
+  setProjectionTime,
+  setLeverage
 } from '../ducks/filter';
 import { connect } from 'react-redux';
 
@@ -34,15 +35,18 @@ class Filter extends Component {
     minHistoryLength: PropTypes.integer,
     minCorrelation: PropTypes.number,
     intrest: PropTypes.number,
+    sortOn: PropTypes.string,
+    leverage: PropTypes.string,
     projectionTime: PropTypes.number,
     setPositiveEarningsGrowth: PropTypes.func,
     setPositiveRevenuGrowth: PropTypes.func,
     setPositiveFreeCashFlowGrowth: PropTypes.func,
     setMinHistoryLength: PropTypes.func,
     setMinCorrelation: PropTypes.func,
-    sortOn: PropTypes.string,
+    setProjectionTime: PropTypes.func,
     setSortOn: PropTypes.func,
-    setIntrest: PropTypes.func
+    setIntrest: PropTypes.func,
+    setLeverage: PropTypes.func,
   };
 
   state = {
@@ -59,9 +63,20 @@ class Filter extends Component {
       sortOn,
       intrest,
       positiveFreeCashFlowGrowth,
-      projectionTime
+      projectionTime,
+      leverage
     } = this.props;
-    const { setProjectionTime, setPositiveEarningsGrowth, setPositiveRevenuGrowth, setMinHistoryLength, setMinCorrelation, setSortOn, setIntrest, setPositiveFreeCashFlowGrowth } = this.props;
+    const {
+      setProjectionTime,
+      setPositiveEarningsGrowth,
+      setPositiveRevenuGrowth,
+      setMinHistoryLength,
+      setMinCorrelation,
+      setSortOn,
+      setIntrest,
+      setPositiveFreeCashFlowGrowth,
+      setLeverage
+    } = this.props;
 
     return (
       <div>
@@ -144,6 +159,31 @@ class Filter extends Component {
             />
           </RadioButtonGroup>
 
+          <ToolbarTitle text="Leverage" />
+          <RadioButtonGroup
+            valueSelected={leverage}
+            onChange={(event, value) => setLeverage(value)}
+            name="leverage"
+            defaultSelected="dividend"
+          >
+            <RadioButton
+              value="none"
+              label="None"
+            />
+            <RadioButton
+              value="avanza"
+              label="Avanza"
+            />
+            <RadioButton
+              value="nordnet"
+              label="Nordnet"
+            />
+            <RadioButton
+              value="best"
+              label="Best"
+            />
+          </RadioButtonGroup>
+
           <MenuItem
             onClick={() => browserHistory.push(rootRoute + 'return')}
           >
@@ -174,6 +214,7 @@ function mapStateToProps(state) {
     sortOn: state.filterReducer.get('sortOn'),
     intrest: state.filterReducer.get('intrest'),
     projectionTime: state.filterReducer.get('projectionTime'),
+    leverage: state.filterReducer.get('leverage'),
   };
 }
 
@@ -186,7 +227,8 @@ function mapDispatchToProps(dispatch) {
     setMinCorrelation: bindActionCreators(setMinCorrelation, dispatch),
     setSortOn: bindActionCreators(setSortOn, dispatch),
     setIntrest: bindActionCreators(setIntrest, dispatch),
-    setProjectionTime: bindActionCreators(setProjectionTime, dispatch)
+    setProjectionTime: bindActionCreators(setProjectionTime, dispatch),
+    setLeverage: bindActionCreators(setLeverage, dispatch),
   };
 }
 

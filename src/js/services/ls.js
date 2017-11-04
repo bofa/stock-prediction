@@ -1,4 +1,10 @@
 /**
+ *
+ *
+ */
+/**
+ * @param {} values -
+ *
  * http://mathworld.wolfram.com/LeastSquaresFitting.html
  */
 export function leastSquarceEstimate(values) {

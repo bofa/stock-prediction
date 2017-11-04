@@ -4,6 +4,7 @@ import App from './App';
 import Index from './views/Index';
 import Company from './views/Company';
 import Return from './views/Return';
+import Validation from './views/Validation';
 
 // export const rootRoute = "/";
 export const rootRoute = "/stock-prediction/";
@@ -52,6 +53,7 @@ export default (
     <IndexRoute component={Index} />
     <Route path="company/:company" component={Company} />
     <Route path="return" component={Return} />
+    <Route path="validation" component={Validation} />
     <Redirect from="*" to={rootRoute} />
   </Route>
 );

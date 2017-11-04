@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { fromJS, Map } from 'immutable';
 import LS from 'local-storage';
-import { quote, borsdataToYahoo } from '../services/price';
+import borsdataToYahoo from '../data/manualData';
+import { quote } from '../services/price';
 
 // import { data as companies } from '../../data/companies.json';
 
@@ -98,7 +99,8 @@ export function loadBorsdata(name) {
 }
 
 export function loadYahoo() {
-  return (dispatch) => borsdataToYahoo.forEach((yahooTicker, bdTicker) => quote(yahooTicker)
+  return (dispatch) => borsdataToYahoo.filter(item => item.has('yahooKey')).forEach((item, bdTicker) =>
+    quote(item.get('yahooKey'))
     // .then(price => this.setState({ companies: this.state.companies.setIn([bdTicker, 'price'], price)}))
     .then(price => dispatch(mergeCompany(bdTicker, new Map({ price }))))
   );

@@ -17,10 +17,11 @@ import data from '../data';
 
 const companys = data.toList().sortBy(item => item.get('Name')).toJS();
 
+const msToYears = 1/(1000*60*60*24*365.25);
 function yearFrac(date) {
-  var ageDifMs = Date.now() - (new Date(date)).getTime();
-  var ageDate = new Date(ageDifMs);
-  return Math.abs(ageDate.getUTCFullYear() - 1970);
+  const diffMs = Date.now() - date;
+  const diffYears = msToYears*diffMs; // yes.. yes not exact
+  return diffYears;
 }
 
 function isNumeric(n) {
@@ -31,7 +32,6 @@ const priceList = companys
   .map((item, key) => <MenuItem value={key} primaryText={item.Name} />);
 
 priceList.unshift(<MenuItem value="custom" primaryText="Custom Company" />);
-
 
 class View extends Component {
 
@@ -44,6 +44,7 @@ class View extends Component {
   };
 
   state = {
+    nowValue: 1691212,
   }
 
   addGroup = () => {
@@ -74,13 +75,15 @@ class View extends Component {
 
   render () {
     const { groups, addToUserGroup, createUserGroup, userGroups, customCompanies } = this.props;
-    const { groupText } = this.state;
+    const { groupText, nowValue, selected } = this.state;
 
     if (customCompanies) console.log('customCompanies.toJS()', customCompanies.toJS());
 
     const companiesExtended = companys.concat(customCompanies.toJS());
 
-    console.log('companiesExtended', companiesExtended);
+    console.log('state', selected);
+
+    // console.log('companiesExtended', companiesExtended);
 
     const headers = [
       'Group',
@@ -119,7 +122,7 @@ class View extends Component {
           acc.concat(groups.find((g) => g.getIn([0, 'name']) === groupIndex))
           , new List());
 
-      console.log('userGroup', userGroup, 'item', item.toJS());
+      // console.log('userGroup', userGroup, 'item', item.toJS());
 
       const sumTransactions = item
         .reduce((sum, item) => sum + item.get('sum'), 0);
@@ -147,13 +150,37 @@ class View extends Component {
       // return ['gurkburk', 123, 321, Math.round(100*1) + '%'];
     });
 
-    console.log('groups', groups.toJS());
-    console.log('this.state.dropDown', this.state);
+    // console.log('groups', groups.toJS());
+    // console.log('this.state.dropDown', this.state);
+
+    const groupedByType = groups.flatten(1).groupBy(item => item.get('type'));
+
+    const deposits = groupedByType.get('Ins�ttning', List());
+    const withdraws = groupedByType.get('Uttag', List());
+
+    const transactions = deposits.concat(withdraws).map((item) => ({
+      yearFrac: yearFrac(item.get('date')),
+      value: -item.get('sum')
+    }));
+
+    const deposited = deposits.reduce((sum, item) => sum - item.get('sum'), 0);
+    const withdrawed = withdraws.reduce((sum, item) => sum - item.get('sum'), 0);
+    const totalEarnings = deposited + withdrawed + nowValue;
+
+    const totalInternalIntrest = internalIntrest(transactions.toJS(), nowValue);
+
+    // console.log('transactions', transactions.toJS());
+    // console.log('deposited', deposited);
+    // console.log('withdrawed', withdrawed);
+    // console.log('totalInternalIntrest', totalInternalIntrest);
+
     return (
       <div>
         <Dropzone onDrop={this.props.loadFile}>
-          <div>Try dropping some files here, or click to select files to upload.</div>
+          <div>Upload transaction history csv</div>
         </Dropzone>
+        <h2>Total Earnings: {Math.round(totalEarnings)}</h2>
+        <h2>Total IIR: {Math.round(100*totalInternalIntrest)}%</h2>
         <RaisedButton onClick ={this.addGroup} label="Add Group"/>
         <TextField
           onChange={(event, text) => this.setState({ groupText: text })}
@@ -187,6 +214,7 @@ class View extends Component {
 }
 
 function mapStateToProps(state) {
+  console.log('state', state.returnReducer.toJS());
   return {
     userGroups: state.returnReducer
       .get('userGroups', new Map()),

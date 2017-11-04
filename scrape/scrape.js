@@ -159,15 +159,15 @@ function delayApiCall(comp, delay = 20000) {
   const call = () => Promise.all([
     axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=1`)
       .then(formatKpisResponseMain)
-      .catch(() => consolePipe('Error1!', new List())),
+      .catch(() => consolePipe('Error1!' + comp.CountryUrlName, new List())),
     axios.get(`https://borsdata.se/api/ratio?companyUrlName=${comp.CountryUrlName}&ratioType=3`, {
         headers: { Cookie }})
       .then(formatKpisResponseMain)
-      .catch(() => consolePipe('Error2!', new Map())),
+      .catch(() => consolePipe('Error2!' + comp.CountryUrlName, new Map())),
     axios.get(`https://borsdata.se/api/AnalysisHighChartSeries?analysisTime=0&companyUrl=${comp.CountryUrlName}&kpiId=73`,{
         headers: { Cookie }})
       .then(formatKpisResponseSingle)
-      .catch(() => consolePipe('Error3!', new Map())),
+      .catch(() => consolePipe('Error3!' + comp.CountryUrlName, new Map())),
     axios.get(`https://borsdata.se/api/highchart?companyUrlName=${comp.CountryUrlName}`)
       .then(formatStockPriceData)
       .catch(() => {}),
@@ -198,7 +198,7 @@ function getHistoricData(prices) {
   Promise.all(companyNames
     // .filter((v, index) => index < 4)
     // .filter((v, index) => index < 40)
-    .map((comp, index) => delayApiCall(comp, 2000*index))
+    .map((comp, index) => delayApiCall(comp, 1000*index))
   )
   // .then(consolePipe)
   .then(allResponse => allResponse

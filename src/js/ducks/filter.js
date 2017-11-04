@@ -13,6 +13,7 @@ const initialState = fromJS({
   sortOn: 'dividend',
   intrest: 0,
   projectionTime: 5,
+  leverage: 'none'
 });
 
 const FILTER_SET_PARAM = 'FILTER_SET_PARAM';
@@ -61,6 +62,14 @@ export function setSortOn(value) {
   return {
     type: FILTER_SET_PARAM,
     path: ['sortOn'],
+    value
+  };
+}
+
+export function setLeverage(value) {
+  return {
+    type: FILTER_SET_PARAM,
+    path: ['leverage'],
     value
   };
 }

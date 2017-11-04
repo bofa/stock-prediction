@@ -28,6 +28,7 @@ function convertToNumber(str) {
 }
 
 export function loadFile(acceptedFiles) {
+  // console.log('acceptedFiles', acceptedFiles);
   return dispatch => {
     axios.get(acceptedFiles[0].preview)
       .then(response => {
@@ -38,7 +39,7 @@ export function loadFile(acceptedFiles) {
         const csv = fromJS(csvJS);
         // console.log('csvJS', csvJS);
 
-        if (csvJS[0].length === 9) {
+        if (csvJS[0].length === 10) {
           // Avanza
           return new Map({
             headers: csv.get(0),

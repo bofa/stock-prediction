@@ -65,6 +65,7 @@
   "dependencies": {
     "autoprefixer": "^6.3.6",
     "axios": "^0.16.0",
+    "axios-retry": "3.0.1",
     "classnames": "^2.2.3",
     "d3": "^4.7.3",
     "d3-drag": "^1.0.4",
