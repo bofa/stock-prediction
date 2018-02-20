@@ -81,10 +81,11 @@ class StockApp extends Component {
     }
 
     function freeCashFlowVsDividend (company) {
-      return company.get('freeCashFlow').reduce((sum, cash) => sum + cash.get('yield'), 0)
-      - company.get('dividend').reduce((sum, cash) => sum + cash.get('yield'), 0)
-      > 0;
+      return company.get('freeCashFlow').reduce((sum, cash) => sum + cash, 0)
+      > 0.1*company.get('dividend').reduce((sum, cash) => sum + cash, 0);
     }
+
+    console.log('companys', companys.toJS());
 
     const companysMerge = companys.mergeDeep(stocks)
       .filter(company => !company.getIn(['hide']))
@@ -98,7 +99,7 @@ class StockApp extends Component {
         const [leverage, cost, type] = parseMargin(leverageType, company);
 
         return company
-        .set('estimate', leverage*dividendEstimate(company, projectionTime, intrest) - cost)
+        .set('estimate', leverage*dividendEstimate(company, projectionTime, intrest)/company.get('price')/company.getIn(['numberOfStocks', -1]) - cost)
         .set('earningsEstimate', leverage*earningsEstimate(company, projectionTime) - cost);
       })
       // .filter(company => !isNaN(company.get('estimate')))
@@ -128,8 +129,8 @@ class StockApp extends Component {
       <Link to={`${rootRoute}company/${company.get('ShortName')}`} >
         {Math.round(1000 * company.get('estimate')) / 10}%
       </Link>,
-      Math.round(100 * company.getIn(['dividend', -1, 'yield']) / company.get('price')) + '%',
-      Math.round(company.get('price') / company.getIn(['earnings', -1, 'yield'])),
+      Math.round(100 * company.getIn(['dividend', -1]) / company.getIn(['numberOfStocks', -1]) / company.get('price')) + '%',
+      Math.round(company.get('price') * company.getIn(['numberOfStocks', -1]) / company.getIn(['earnings', -1])),
       Math.round(100 * company.get('avgDividendRatio')) + '%',
       Math.round(100 * company.getIn(['earningsLs', 3])) / 100,
       Math.round(10000  * company.getIn(['stockPriceMomentum'])) + '%',

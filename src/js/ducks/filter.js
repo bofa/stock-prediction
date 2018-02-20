@@ -8,11 +8,11 @@ const initialState = fromJS({
   positiveEarningsGrowth: true,
   positiveRevenuGrowth: true,
   positiveFreeCashFlowGrowth: false,
-  minHistoryLength: 8,
-  minCorrelation: 0.5,
+  minHistoryLength: 6,
+  minCorrelation: 0.4,
   sortOn: 'dividend',
-  intrest: 0,
-  projectionTime: 5,
+  intrest: 0.02,
+  projectionTime: 7,
   leverage: 'none'
 });
 

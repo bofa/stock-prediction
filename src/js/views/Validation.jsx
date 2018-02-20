@@ -49,8 +49,7 @@ class Validation extends Component {
       .filter(comp => comp.get('historyLength') > 8)
       .map(comp => comp
         .get('revenue')
-        .get(-3)
-        .get('yield'));
+        .get(-3));
 
     console.log('revenueData', revenueData.toJS());
 
@@ -58,15 +57,13 @@ class Validation extends Component {
       .filter(comp => comp.get('historyLength') > 8)
       .map(comp => comp
         .get('earnings')
-        .skipLast(2)
-        .map(point => point.get('yield')));
+        .skipLast(2));
 
     const validationData = companys
       .filter(comp => comp.get('historyLength') > 8)
       .map(comp => comp
         .get('earnings')
-        .get(-2)
-        .get('yield'));
+        .get(-2));
 
     const modelLinear = estimationData
       .map(item => item.toJS())

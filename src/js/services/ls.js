@@ -1,8 +1,4 @@
 /**
- *
- *
- */
-/**
  * @param {} values -
  *
  * http://mathworld.wolfram.com/LeastSquaresFitting.html
@@ -29,10 +25,10 @@ export function leastSquarceEstimate(values) {
 }
 
 export function earningsEstimate(company, projectionTime, intrest=0) {
-  const { earningsLs, price, netBrowing } = company.toJS();
-
+  const { earningsLs, netBrowing } = company.toJS();
   const [bias, slop, cov] = earningsLs;
-  return (bias + projectionTime*slop/2 - netBrowing*intrest) / price;
+
+  return (bias + projectionTime*slop/2 - netBrowing*intrest);
 }
 
 export function dividendEstimate(company, projectionTime, intrest) {

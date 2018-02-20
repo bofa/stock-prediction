@@ -72,28 +72,33 @@ class View extends Component {
 
     const countryUrlName = staticStockData.get('CountryUrlName');
 
-    // console.log('staticStockData', staticStockData.toJS());
+    console.log('staticStockData', staticStockData.toJS());
     // console.log('dynamicStockData', dynamicStockData.toJS());
 
+    console.log('revenue', revenue.toJS());
+    console.log('earnings', earnings.toJS());
+
     const bars = revenue.mergeWith(
-      (earning, revenue) => ({
-        year: revenue.get('year'),
-        earnings: revenue.get('yield'),
-        revenue: earning.get('yield')
+      (revenue, earnings, index) => ({
+        year: index, // revenue.get('year'),
+        earnings,
+        revenue
       }), earnings)
       .mergeWith((merged, dividend) => ({
         ...merged,
-        dividend: dividend.get('yield')
+        dividend: dividend
       }), dividend)
       .mergeWith((merged, freeCashFlow) => ({
         ...merged,
-        freeCashFlow: freeCashFlow.get('yield')
+        freeCashFlow: freeCashFlow
       }), freeCashFlow)
       .toJS();
 
     const barsProjection = getProjection(combinedData, projectionTime);
 
     const combinedBars = bars.concat(barsProjection);
+
+    console.log('bars', bars);
 
     return (
       <div>
@@ -115,7 +120,7 @@ class View extends Component {
             delete
           </IconButton>
           {' ' + staticStockData.get('Name') + ', '}
-          {Math.round(1000 * dividendEstimate(combinedData, projectionTime, intrest)) / 10}% / y,
+          {Math.round(1000 * dividendEstimate(combinedData, projectionTime, intrest)/combinedData.get('price')/combinedData.getIn(['numberOfStocks', -1])) / 10}% / y,
           {' ' + Math.round(10 * yearsToPayOff(combinedData)) / 10 + 'y'}
           {' '}
           <a href={`https://borsdata.se/${countryUrlName}/nyckeltal`} target="_blank">
