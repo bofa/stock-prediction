@@ -91,7 +91,7 @@ function reduceCompanyData(structure) {
     const avgRevenue = revenue
       .reduce((out, ratio, i, array) => out + ratio/array.length, 0);
 
-      const earningsLs = leastSquarceEstimate(earnings
+    const earningsLs = leastSquarceEstimate(earnings
         .filter(value => value !== 0)
       );
 

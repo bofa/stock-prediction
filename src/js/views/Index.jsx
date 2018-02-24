@@ -1,4 +1,4 @@
-import { List, Map } from 'immutable';
+import { List, Map, fromJS } from 'immutable';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -11,13 +11,24 @@ import Table from '../components/Table';
 import Filter from '../components/Filter';
 import companys from '../data';
 import { intrest as investmentIntrestGroups, saftyMargin } from '../data/manualData';
-import { dividendEstimate, earningsEstimate, yearsToPayOff } from '../services/ls';
+import { leastSquarceEstimate, dividendEstimate, earningsEstimate, yearsToPayOff } from '../services/ls';
+import { average } from '../services/statistics';
 
+function setModel(company, time) {
+  const revenue = company.get('revenue').slice(-time);
+  const earnings = company.get('earnings').slice(-time);
+  const freeCashFlow = company.get('freeCashFlow').slice(-time);
 
+  // console.log('company', company.toJS());
+  // console.log(company.get('earningsLs'), leastSquarceEstimate(earnings.toJS()));
 
-// const buttonStyle = {
-//   margin: 12,
-// };
+  return company
+    .set('avgEarnings', average(earnings))
+    .set('avgRevenue', average(revenue))
+    .set('revenueLs', fromJS(leastSquarceEstimate(revenue.toJS())))
+    .set('earningsLs', fromJS(leastSquarceEstimate(earnings.toJS())))
+    .set('freeCashFlowLs', fromJS(leastSquarceEstimate(freeCashFlow.toJS())));
+}
 
 function parseMargin(marginType, company) {
   if(marginType === 'none') {
@@ -85,14 +96,20 @@ class StockApp extends Component {
       > 0.1*company.get('dividend').reduce((sum, cash) => sum + cash, 0);
     }
 
-    console.log('companys', companys.toJS());
+    // const gurkburk = companys.mergeDeep(stocks)
+    //   .filter(company => company.getIn(['historyLength']) >= projectionTime)
+    //   .map(company => setModel(company, projectionTime));
 
-    const companysMerge = companys.mergeDeep(stocks)
-      .filter(company => !company.getIn(['hide']))
+    // console.log('gurkburk', gurkburk.get('ABB').toJS());
+
+    const companysMerge = companys
       .filter(company => company.getIn(['historyLength']) >= minHistoryLength)
+      .map(company => setModel(company, minHistoryLength))
+      .mergeDeep(stocks)
+      .filter(company => !company.getIn(['hide']))
       .filter(company => !(positiveEarningsGrowth && company.getIn(['earningsLs', 1]) < 0))
       .filter(company => !(positiveRevenuGrowth && company.getIn(['revenueLs', 1]) < 0))
-      .filter(company => !(positiveFreeCashFlowGrowth && company.getIn(['freeCashFlowLs', 1]) < 0))
+      // .filter(company => !(positiveFreeCashFlowGrowth && company.getIn(['freeCashFlowLs', 1]) < 0))
       .filter(company => company.getIn(['earningsLs', 3]) > minCorrelation)
       .filter(company => !positiveRevenuGrowth || freeCashFlowVsDividend(company))
       .map(company => {
@@ -107,7 +124,7 @@ class StockApp extends Component {
       .sortBy(sorter);
       // .filter((value, index) => index < 100);
 
-    console.log('qasdf', companysMerge.toJS());
+    // console.log('qasdf', companysMerge.toJS());
 
     const headers = [
       'Name',
