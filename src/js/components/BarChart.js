@@ -8,14 +8,15 @@ import Faux from 'react-faux-dom';
 // Can't use ES6 because Faux needs mixins too work.
 const DatamodelGraph = React.createClass({
   propTypes: {
-    name: PropTypes.string.isRequired,
     bars: PropTypes.array.isRequired,
+    barsProjected: PropTypes.array.isRequried,
     line: PropTypes.array.isRequired,
     manipulableLine: PropTypes.array.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     onChange: PropTypes.func.isRequired,
     projectionTime: PropTypes.number,
+    minHistoryLength: PropTypes.number
   },
 
   mixins: [
@@ -29,18 +30,18 @@ const DatamodelGraph = React.createClass({
     };
   },
 
-  // componentWillMount() {
-  //   // this.props.init();
-  // },
-
   componentDidMount() {
     this.componentWillReceiveProps(this.props);
   },
 
   componentWillReceiveProps(nextProps) {
-    const { name, onChange, bars, line, manipulableLine, width, height, projectionTime } = nextProps;
+    const { onChange, barsProjected, line, manipulableLine, width, height, projectionTime, minHistoryLength } = nextProps;
+    const barsHistory = this.props.bars;
+
+    const bars = barsHistory.concat(barsProjected);
 
     const faux = this.connectFauxDOM('div.renderedD3', 'chart');
+
     // set the dimensions and margins of the diagram
     const margin = { top: 20, right: 10, bottom: 0, left: 0 };
 
@@ -51,30 +52,20 @@ const DatamodelGraph = React.createClass({
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // Add title
-
-    // svg.append("text")
-    //   .attr("x", (width / 2))
-    //   .attr("y", 0 + (margin.top))
-    //   .attr("text-anchor", "middle")
-    //   .style("font-size", "16px")
-    //   .text(name);
-
     // Init transformations
 
     var barWidth = 9;
 
     var x = d3.scaleLinear().domain([0, bars.length]).range([0, width]);
-    // var y = d3.scaleLinear().domain([d3.min(bars, function(datum) { return datum.yield; }), d3.max(bars, function(datum) { return datum.yield; })]);
 
-    const timeLsEstimate1 = 0;
-    const timeLsEstimate2 = 9;
+    const timeLsEstimate1 = barsHistory.length - minHistoryLength;
+    const timeLsEstimate2 = barsHistory.length;
 
-    const originalValueLsEstimate1 = line[0] - line[1]*timeLsEstimate2;
-    const originalValueLsEstimate2 = line[0] - line[1]*timeLsEstimate1;
+    const originalValueLsEstimate1 = line[0] - line[1]*minHistoryLength;
+    const originalValueLsEstimate2 = line[0];
 
-    const valueLsEstimate1 = manipulableLine[0] - manipulableLine[1]*9;
-    const valueLsEstimate2 = manipulableLine[0] - manipulableLine[1]*0;
+    const valueLsEstimate1 = manipulableLine[0] - manipulableLine[1]*minHistoryLength;
+    const valueLsEstimate2 = manipulableLine[0];
 
     const max = Math.max(0, valueLsEstimate1, valueLsEstimate2, ...bars.map(p => p.revenue), ...bars.map(p => p.earnings));
     const min = Math.min(0, valueLsEstimate1, valueLsEstimate2, ...bars.map(p => p.revenue), ...bars.map(p => p.earnings));
@@ -122,13 +113,9 @@ const DatamodelGraph = React.createClass({
       .attr("width", barWidth)
       .attr("fill", datum => datum.dividend > 0 ? "#035C43" : "#ff0000");
 
-    // drawBars('revenue', bars, "#123456", "#fedcba", 30);
-    // drawBars('earnings', bars, "#2d578b", "#ff0000", 0);
-
     // Draw line
-    //Draw the line
     svg.append("line")
-      .attr("x1", x(timeLsEstimate1) + 1.5*barWidth )
+      .attr("x1", x(timeLsEstimate1) + 1.5*barWidth)
       .attr("y1", y(originalValueLsEstimate1))
       .attr("x2", x(timeLsEstimate2) + 1.5*barWidth)
       .attr("y2", y(originalValueLsEstimate2))
@@ -136,10 +123,10 @@ const DatamodelGraph = React.createClass({
       .attr("stroke", "gray");
 
     const lsLine2 = svg.append("line")
-      .attr("x1", x(0) + 1.5*barWidth)
-      .attr("y1", y(manipulableLine[0] - manipulableLine[1]*9))
+      .attr("x1", x(timeLsEstimate1) + 1.5*barWidth)
+      .attr("y1", y(valueLsEstimate1))
       .attr("x2", x(timeLsEstimate2) + 1.5*barWidth)
-      .attr("y2", y(manipulableLine[0]))
+      .attr("y2", y(valueLsEstimate2))
       .attr("stroke-width", 2)
       .attr("stroke", "black");
 
@@ -157,7 +144,7 @@ const DatamodelGraph = React.createClass({
     function dragEnded() {
       onChange([
         yInv(box2.attr('cy')),
-        (yInv(box2.attr('cy')) - yInv(box1.attr('cy'))) / 9
+        (yInv(box2.attr('cy')) - yInv(box1.attr('cy'))) / minHistoryLength
       ]);
     }
 

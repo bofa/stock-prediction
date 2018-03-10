@@ -13,6 +13,7 @@ import IconButton from 'material-ui/IconButton';
 import { dividendEstimate, getProjection, yearsToPayOff } from '../services/ls';
 import { rootRoute } from '../routes';
 import bdIcon from '../../images/bd.png';
+import { setModel, parseMargin } from '../services/company';
 
 // const yieldArray = stocks.getIn([stock, 5, 'Sparkline'], new List());
 
@@ -21,7 +22,8 @@ class View extends Component {
     params: PropTypes.object.isRequired,
     stocks: PropTypes.object.isRequired,
     mergeCompany: PropTypes.func.isRequired,
-    intrest: PropTypes.number
+    intrest: PropTypes.number,
+    minHistoryLength: PropTypes.number
   };
 
   state = {
@@ -52,11 +54,13 @@ class View extends Component {
   }
 
   render () {
-    const { stocks, projectionTime, intrest } = this.props;
+    const { stocks, projectionTime, intrest, minHistoryLength } = this.props;
     const shortName = this.props.params.company;
-    const staticStockData = data.get(shortName);
+    const staticStockData = data.get(shortName)
+      .update(company => setModel(company, minHistoryLength));
     const dynamicStockData = stocks.get(shortName, Map());
-    const combinedData = staticStockData.mergeDeep(dynamicStockData);
+    const combinedData = staticStockData
+      .mergeDeep(dynamicStockData);
 
     const dividend = staticStockData.get('dividend');
 
@@ -72,11 +76,11 @@ class View extends Component {
 
     const countryUrlName = staticStockData.get('CountryUrlName');
 
-    console.log('staticStockData', staticStockData.toJS());
+    // console.log('staticStockData', staticStockData.toJS());
     // console.log('dynamicStockData', dynamicStockData.toJS());
 
-    console.log('revenue', revenue.toJS());
-    console.log('earnings', earnings.toJS());
+    // console.log('revenue', revenue.toJS());
+    // console.log('earnings', earnings.toJS());
 
     const bars = revenue.mergeWith(
       (revenue, earnings, index) => ({
@@ -95,10 +99,6 @@ class View extends Component {
       .toJS();
 
     const barsProjection = getProjection(combinedData, projectionTime);
-
-    const combinedBars = bars.concat(barsProjection);
-
-    console.log('bars', bars);
 
     return (
       <div>
@@ -130,11 +130,12 @@ class View extends Component {
         <BarChart
           width={800}
           height={400}
-          name="Revenue"
-          bars={combinedBars}
+          bars={bars}
+          barsProjected={barsProjection}
           line={earningsLsStatic.toJS()}
           manipulableLine={earningsLs.toJS()}
           onChange={this.setCompanyEarnings}
+          minHistoryLength={minHistoryLength}
         />
       </div>
     );
@@ -146,6 +147,7 @@ function mapStateToProps(state) {
     stocks: state.stockReducer,
     intrest: state.filterReducer.get('intrest'),
     projectionTime: state.filterReducer.get('projectionTime'),
+    minHistoryLength: state.filterReducer.get('minHistoryLength'),
   };
 }
 

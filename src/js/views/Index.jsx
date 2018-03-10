@@ -13,44 +13,7 @@ import companys from '../data';
 import { intrest as investmentIntrestGroups, saftyMargin } from '../data/manualData';
 import { leastSquarceEstimate, dividendEstimate, earningsEstimate, yearsToPayOff } from '../services/ls';
 import { average } from '../services/statistics';
-
-function setModel(company, time) {
-  const revenue = company.get('revenue').slice(-time);
-  const earnings = company.get('earnings').slice(-time);
-  const freeCashFlow = company.get('freeCashFlow').slice(-time);
-
-  // console.log('company', company.toJS());
-  // console.log(company.get('earningsLs'), leastSquarceEstimate(earnings.toJS()));
-
-  return company
-    .set('avgEarnings', average(earnings))
-    .set('avgRevenue', average(revenue))
-    .set('revenueLs', fromJS(leastSquarceEstimate(revenue.toJS())))
-    .set('earningsLs', fromJS(leastSquarceEstimate(earnings.toJS())))
-    .set('freeCashFlowLs', fromJS(leastSquarceEstimate(freeCashFlow.toJS())));
-}
-
-function parseMargin(marginType, company) {
-  if(marginType === 'none') {
-    return [1, 0, 'none'];
-  } else if(marginType === 'best') {
-    //TODO Bugg!!
-    const maxMargin = company.get('margin', Map()).max();
-    const key = company.keyOf(maxMargin);
-    const intrest = investmentIntrestGroups.get(key);
-    const leverage = 1/(1-saftyMargin*maxMargin);
-    const cost = intrest*(leverage - 1);
-
-    return [leverage, cost, key];
-  } else {
-    const margin = company.getIn(['margin', marginType], 0);
-    const intrest = investmentIntrestGroups.get(marginType);
-    const leverage = 1/(1-saftyMargin*margin);
-    const cost = intrest*(leverage - 1);
-
-    return [leverage, cost, marginType];
-  }
-}
+import { setModel, parseMargin } from '../services/company';
 
 class StockApp extends Component {
   static propTypes = {
@@ -96,12 +59,6 @@ class StockApp extends Component {
       > 0.1*company.get('dividend').reduce((sum, cash) => sum + cash, 0);
     }
 
-    // const gurkburk = companys.mergeDeep(stocks)
-    //   .filter(company => company.getIn(['historyLength']) >= projectionTime)
-    //   .map(company => setModel(company, projectionTime));
-
-    // console.log('gurkburk', gurkburk.get('ABB').toJS());
-
     const companysMerge = companys
       .filter(company => company.getIn(['historyLength']) >= minHistoryLength)
       .map(company => setModel(company, minHistoryLength))
@@ -123,8 +80,6 @@ class StockApp extends Component {
       .toList()
       .sortBy(sorter);
       // .filter((value, index) => index < 100);
-
-    // console.log('qasdf', companysMerge.toJS());
 
     const headers = [
       'Name',
