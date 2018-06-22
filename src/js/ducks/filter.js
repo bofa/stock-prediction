@@ -1,8 +1,8 @@
 import { fromJS } from 'immutable';
-// import LS from 'local-storage';
+import LS from 'local-storage';
 
-// const storageJson = LS.get('stocks');
-// const localStorage = storageJson ? JSON.parse(storageJson) : {};
+const storageJson = LS.get('filter');
+const localStorage = storageJson ? JSON.parse(storageJson) : {};
 
 const initialState = fromJS({
   positiveEarningsGrowth: true,
@@ -11,9 +11,10 @@ const initialState = fromJS({
   minHistoryLength: 6,
   minCorrelation: 0.4,
   sortOn: 'dividend',
-  intrest: 0.02,
+  intrest: 0.00,
   projectionTime: 7,
-  leverage: 'none'
+  leverage: 'none',
+  ...localStorage
 });
 
 const FILTER_SET_PARAM = 'FILTER_SET_PARAM';
@@ -101,7 +102,7 @@ export default function (state = initialState, action) {
   }
 
   // TODO Merge with excising localStorage
-  // LS('stocks', JSON.stringify(newState));
+  LS('filter', JSON.stringify(newState));
 
   return newState;
 }

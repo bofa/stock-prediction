@@ -63,12 +63,13 @@ class StockApp extends Component {
       .filter(company => company.getIn(['historyLength']) >= minHistoryLength)
       .map(company => setModel(company, minHistoryLength))
       .mergeDeep(stocks)
+      // .filter((c, key) => key === 'matas')
       .filter(company => !company.getIn(['hide']))
       .filter(company => !(positiveEarningsGrowth && company.getIn(['earningsLs', 1]) < 0))
       .filter(company => !(positiveRevenuGrowth && company.getIn(['revenueLs', 1]) < 0))
       // .filter(company => !(positiveFreeCashFlowGrowth && company.getIn(['freeCashFlowLs', 1]) < 0))
       .filter(company => company.getIn(['earningsLs', 3]) > minCorrelation)
-      .filter(company => !positiveRevenuGrowth || freeCashFlowVsDividend(company))
+      // .filter(company => !positiveRevenuGrowth || freeCashFlowVsDividend(company))
       .map(company => {
         const [leverage, cost, type] = parseMargin(leverageType, company);
 
@@ -98,7 +99,7 @@ class StockApp extends Component {
         </a>
         {company.get('Name')}
       </div>,
-      <Link to={`${rootRoute}company/${company.get('ShortName')}`} >
+      <Link to={`${rootRoute}company/${company.get('CountryUrlName')}`} >
         {Math.round(1000 * company.get('estimate')) / 10}%
       </Link>,
       Math.round(100 * company.getIn(['dividend', -1]) / company.getIn(['numberOfStocks', -1]) / company.get('price')) + '%',

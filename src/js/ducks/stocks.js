@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { fromJS, Map } from 'immutable';
 import LS from 'local-storage';
-import borsdataToYahoo from '../data/manualData';
 import { quote } from '../services/price';
+import { getSheetData } from '../services/sheets';
 
 // import { data as companies } from '../../data/companies.json';
 
@@ -46,6 +46,7 @@ const initialState = fromJS(localStorage);
 export const STOCK_APP_SET_TIME_DURATION = 'STOCK_APP_SET_TIME_DURATION';
 export const STOCK_APP_LOAD_DATA = 'STOCK_APP_LOAD_DATA';
 const STOCK_MERGE_COMPANY = 'STOCK_SET_COMPANY';
+const STOCK_MERGE = 'STOCK_MERGE';
 
 export function setTimeDuration(duration) {
   return {
@@ -59,6 +60,13 @@ export function mergeCompany(shortName, company) {
     type: STOCK_MERGE_COMPANY,
     shortName,
     company
+  };
+}
+
+export function mergeCompanies(companies) {
+  return {
+    type: STOCK_MERGE,
+    companies
   };
 }
 
@@ -98,13 +106,16 @@ export function loadBorsdata(name) {
   };
 }
 
-export function loadYahoo() {
-  return (dispatch) => borsdataToYahoo.filter(item => item.has('yahooKey')).forEach((item, bdTicker) =>
-    quote(item.get('yahooKey'))
-    // .then(price => this.setState({ companies: this.state.companies.setIn([bdTicker, 'price'], price)}))
-    .then(price => dispatch(mergeCompany(bdTicker, new Map({ price }))))
-  );
+export function loadSheet() {
+  return (dispatch) => getSheetData()
+    .then(companies => new Map(companies
+      .filter(company => company.get('keyBorsdata'))
+      .map(company => [company.get('keyBorsdata'), company])))
+    // .then(gurkburk => console.log('gurkburk', gurkburk.toJS()))
+    .then(companies => dispatch(mergeCompanies(companies)));
 }
+
+// getSheetData().then(response => console.log('gurkburk', response.toJS()));
 
 export default function (state = initialState, action) {
   let newState = state;
@@ -116,6 +127,10 @@ export default function (state = initialState, action) {
 
     case STOCK_MERGE_COMPANY: {
       newState = state.mergeIn([action.shortName], fromJS(action.company));
+    } break;
+
+    case STOCK_MERGE: {
+      newState = state.merge(action.companies);
     } break;
   }
 

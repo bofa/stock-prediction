@@ -12,7 +12,7 @@ function toNumber (string) {
     .replace(/\s/g, ''));
 }
 
-const Cookie = '__cfduid=d4d0c41ce0318450547805d4ef84280051519071087; __utmc=182498229; __utmz=182498229.1519071091.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); ai_user=YkDvK|2018-02-19T20:11:31.354Z; __RequestVerificationToken=BPneJ869zvhQISh8X2J4tRMDLxBu4GUrqrt6NEVu6seNRKudL5nDlcIs5R3EpgCVMY481DJRMMl-MVuP9sKZFD7slUQ1; borsdata=5386C4E0BD608D73120A416107C060F6DE0C5633793E70871CDD1AE73B7D935329F30EF3828C8CB6E69C0B1249BBE729AC28D256C94C452C9676744A9076CF0F966F388C87753FD4733E43A0799D2C2BF1B61D16; ARRAffinity=52979c8817f876661f9a60af50d969ba9334aea61b51a3eef5203c0e2c4d3c13; __utma=182498229.396011437.1519071091.1519147806.1519323507.3; __utmt=1; __utmb=182498229.2.10.1519323507; ai_session=BDJTh|1519323507454|1519323516755.675';
+const Cookie = '';
 
 function formatAnalysisReport(response) {
   return fromJS(response.data).update('Rows', rows => rows.map(row => row.update('Data', data => data.map(toNumber))));

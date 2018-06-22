@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { loadYahoo } from './ducks/stocks';
+import { loadSheet } from './ducks/stocks';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 class App extends Component {
   static propTypes = {
     children: PropTypes.element.isRequired,
-    loadYahoo: PropTypes.func
+    loadSheet: PropTypes.func
   };
 
   componentWillMount() {
-    this.props.loadYahoo();
+    this.props.loadSheet();
   }
 
   render() {
@@ -31,7 +31,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    loadYahoo: bindActionCreators(loadYahoo, dispatch)
+    loadSheet: bindActionCreators(loadSheet, dispatch)
   };
 }
 

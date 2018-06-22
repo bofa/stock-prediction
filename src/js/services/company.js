@@ -23,14 +23,13 @@ export function parseMargin(marginType, company) {
   if(marginType === 'none') {
     return [1, 0, 'none'];
   } else if(marginType === 'best') {
-    //TODO Bugg!!
     const maxMargin = company.get('margin', Map()).max();
-    const key = company.keyOf(maxMargin);
+    const key = company.get('margin', Map()).keyOf(maxMargin);
     const intrest = investmentIntrestGroups.get(key);
     const leverage = 1/(1-saftyMargin*maxMargin);
     const cost = intrest*(leverage - 1);
 
-    return [leverage, cost, key];
+    return maxMargin ? [leverage, cost, key] : [1, 0, 'none'];
   } else {
     const margin = company.getIn(['margin', marginType], 0);
     const intrest = investmentIntrestGroups.get(marginType);
