@@ -3,6 +3,7 @@ import { fromJS, List, Map } from 'immutable';
 import writeJsonFile from 'write-json-file';
 import { leastSquarceEstimate } from '../src/js/services/ls';
 import axiosRetry from 'axios-retry';
+import { cookie as Cookie } from './keys';
 
 axiosRetry(axios, { retries: 3 });
 
@@ -11,8 +12,6 @@ function toNumber (string) {
     .replace(',', '.')
     .replace(/\s/g, ''));
 }
-
-const Cookie = '';
 
 function formatAnalysisReport(response) {
   return fromJS(response.data).update('Rows', rows => rows.map(row => row.update('Data', data => data.map(toNumber))));

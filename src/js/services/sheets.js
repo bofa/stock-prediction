@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { fromJS, Map } from 'immutable';
+import { apiKey } from './keys';
 
 const baseUrl = 'https://sheets.googleapis.com/v4/spreadsheets';
 const sheetId = '/183-e_Hf_ZLD4D-91TtqpI35C6TQO_HanD-NKg-XjvAY';
 const sheetRange = '/values/A:J';
-const apiKey = '';
 
 const url = baseUrl + sheetId + sheetRange;
 
