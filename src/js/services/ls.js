@@ -28,7 +28,7 @@ export function earningsEstimate(company, projectionTime, intrest=0) {
   const { earningsLs, netBrowing } = company.toJS();
   const [bias, slop, cov] = earningsLs;
 
-  return (bias + projectionTime*slop/2 - netBrowing*intrest);
+  return (bias + projectionTime*slop/2 - Math.max(netBrowing, 0)*intrest);
 }
 
 export function dividendEstimate(company, projectionTime, intrest) {

@@ -22,6 +22,7 @@
     "pages": "git add build/ & git commit -m \"new build\" & git push origin --delete gh-pages & git subtree push --prefix build origin gh-pages",
     "scrape": "npm run quaterly && npm run format",
     "quaterly": "babel-node --presets es2015 scrape/quaterly.js",
+    "readcsv": "babel-node --presets es2015 scrape/read-csv.js",
     "format": "babel-node --presets es2015 scrape/format.js",
     "dummy": "babel-node --presets es2015 scrape/test.js",
     "scrapebuild": "npm run scrape && npm run build && npm run pages"
@@ -37,14 +38,18 @@
     "chai": "^3.5.0",
     "cheerio": "^0.20.0",
     "colors": "^1.1.2",
+    "concurrently": "^2.1.0",
     "copy-webpack-plugin": "^2.1.3",
     "cross-env": "^4.0.0",
     "css-loader": "^0.28.0",
+    "csvtojson": "2.0.6",
     "eslint": "^3.19.0",
     "eslint-plugin-react": "^6.10.3",
     "extract-text-webpack-plugin": "^1.0.1",
     "gh-pages": "^0.12.0",
+    "http-server": "^0.9.0",
     "jsdom": "^8.2.0",
+    "json-loader": "^0.5.4",
     "node-sass": "^3.7.0",
     "postcss-loader": "^0.8.2",
     "react-addons-test-utils": "^15.0.1",
@@ -60,10 +65,7 @@
     "url-loader": "^0.5.7",
     "webpack": "^1.13.0",
     "webpack-dev-server": "^1.14.1",
-    "concurrently": "^2.1.0",
-    "write-json-file": "^2.0.0",
-    "http-server": "^0.9.0",
-    "json-loader": "^0.5.4"
+    "write-json-file": "^2.0.0"
   },
   "dependencies": {
     "autoprefixer": "^6.3.6",

@@ -46,16 +46,15 @@ function consolePipe (pipe, override) {
   return pipe;
 }
 
-function delayApiCall(comp, delay = 20000) {
-  const call = () => Promise.all([
-    axios.get(`https://borsdata.se/api/AnalysisReport?analysisTime=0&analysisType=1&companyUrl=${comp.CountryUrlName}`)
+function call(comp) {
+  return Promise.all([axios.get(`https://borsdata.se/api/AnalysisReport?analysisTime=0&analysisType=1&companyUrl=${comp.CountryUrlName}`)
       .then(r => r.data)
       .catch(() => consolePipe('Error1!' + comp.CountryUrlName, [])),
     axios.get(`https://borsdata.se/api/AnalysisHighChartSeries?analysisTime=0&companyUrl=${comp.CountryUrlName}&kpiId=63`, {
         headers: { Cookie }})
       .then(r => r.data)
       .catch(error => consolePipe('Error2!' + error + comp.CountryUrlName, {})),
-    axios.get(`https://borsdata.se/api/AnalysisHighChartSeries?analysisTime=0&companyUrl=${comp.CountryUrlName}&kpiId=73`,{
+    axios.get(`https://borsdata.se/api/AnalysisHighChartSeries?analysisTime=0&companyUrl=${comp.CountryUrlName}&kpiId=60`,{
         headers: { Cookie }})
       .then(r => r.data)
       .catch(error => consolePipe('Error3!' + error + comp.CountryUrlName, {})),
@@ -66,10 +65,16 @@ function delayApiCall(comp, delay = 20000) {
         headers: { Cookie }})
       .then(r => r.data)
       .catch(error => consolePipe('Error4!' + error + comp.CountryUrlName, {})),
+    axios.get(`https://borsdata.se/api/AnalysisHighChartSeries?analysisTime=0&companyUrl=${comp.CountryUrlName}&kpiId=137`,{
+        headers: { Cookie }})
+      .then(r => r.data)
+      .catch(error => consolePipe('Error3!' + error + comp.CountryUrlName, {}))
   ]);
+}
 
+function delayApiCall(comp, delay = 20000) {
   return new Promise((resolve, reject) => {
-    setTimeout(() => call()
+    setTimeout(() => call(comp)
     .then(
       response => resolve(response),
       reason => reject(reason)),
@@ -77,7 +82,7 @@ function delayApiCall(comp, delay = 20000) {
   });
 }
 
-axios.post('https://borsdata.se/complist/GetCompanies', {"filter":{"KpiFilter":[{"CategoryId":9,"AdditionalId":151,"KpiId":151,"CalculationType":2,"Calculation":20,"CalcTime":1}]}})
+axios.post('https://borsdata.se/complist/GetCompanies', {"filter":{"KpiFilter":[{"CategoryId":9,"AdditionalId":151,"KpiId":151,"CalculationType":2,"Calculation":20,"CalcTime":1}],"SelectedMarkets":[],"SelectedCountries":[1,2,3,4],"Page":0,"RowsInPage":10000,"ShowOnlySme":false,"ShowOnlyIntroduce":false,"CompanyNameOrdering":0}})
   .then(response => response.data.data)
   .then(companyNames => Promise.all(companyNames
     // .filter((v, index) => index < 10)
