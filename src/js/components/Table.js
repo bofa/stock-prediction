@@ -15,7 +15,6 @@ export default class App extends Component {
 
     return (
       <Table
-        multiSelectable
         onRowSelection={onRowSelection}
       >
         <TableHeader

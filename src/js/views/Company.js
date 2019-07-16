@@ -4,7 +4,7 @@ import { browserHistory } from 'react-router';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import BarChart from '../components/BarChart';
-import data from '../data';
+import importData from '../data';
 import { mergeCompany } from '../ducks/stocks';
 import { Map } from 'immutable';
 // import { Grid, Row, Col } from 'react-flexbox-grid';
@@ -31,6 +31,11 @@ class View extends Component {
     height: 400
   }
 
+  constructor() {
+    super();
+    importData().then(data => this.setState({ data }));
+  }
+
   setCompanyEarnings = (manipulableLine) => {
     const shortName = this.props.params.company;
     this.props.mergeCompany(shortName, {
@@ -55,6 +60,10 @@ class View extends Component {
 
   render () {
     const { stocks, projectionTime, intrest, minHistoryLength } = this.props;
+    const { data } = this.state;
+
+    if(!data) return false;
+
     const shortName = this.props.params.company;
     const staticStockData = data.get(shortName)
       .update(company => setModel(company, minHistoryLength));

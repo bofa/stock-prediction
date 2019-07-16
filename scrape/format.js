@@ -75,8 +75,9 @@ function reduceCompanyData(structure) {
 
     const netBrowing = formatKpisResponseSingle(quaterly[2]).getIn(['Data', -1]);
 
-    const price = quaterly[3][quaterly[3].length-1].y;
-    const stockPriceMomentum = formatStockPriceData(quaterly[3]);
+    // const price = quaterly[3][quaterly[3].length-1].y;
+    // const stockPriceMomentum = formatStockPriceData(quaterly[3]);
+    const { price, stockPriceMomentum } = quaterly[3];
 
     const historyLength =  revenue.length;
 
@@ -128,5 +129,6 @@ function reduceCompanyData(structure) {
 
 const formatted = quaterly.map(reduceCompanyData);
 
-writeJsonFile('src/js/data/earnings.json', formatted, { indent: null });
+writeJsonFile('src/images/earnings.json', formatted, { indent: null })
+  .then(() => console.log('Writing done'));
 console.log('Format Done');

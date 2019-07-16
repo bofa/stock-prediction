@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { List } from 'immutable';
+import { List, fromJS } from 'immutable';
 import PropTypes from 'prop-types';
 import { browserHistory } from 'react-router';
 import { bindActionCreators } from 'redux';
@@ -14,8 +14,31 @@ import TextField from 'material-ui/TextField';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import data from '../data';
+import stringDiffMetric from '../services/string-distance';
 
-const companys = data.toList().sortBy(item => item.get('Name')).toJS();
+// TODO
+let companysImmutable, companys, priceList;
+data().then(data => {
+  companysImmutable = data;
+  companysImmutable.toJS();
+
+  priceList = companysImmutable
+  .map((item, key) => <MenuItem value={key} primaryText={item.Name} />)
+  .toList()
+  .toJS();
+
+  priceList.unshift(<MenuItem value="custom" primaryText="Custom Company" />);
+}); // data.toList().sortBy(item => item.get('Name'));
+// const companys = companysImmutable.toJS();
+
+
+
+console.log('stringDiff', stringDiff, companysImmutable, companys);
+
+
+//Debug
+const stringDiff = stringDiffMetric('hej', 'hejsan');
+console.log('stringDiff', stringDiff);
 
 const msToYears = 1/(1000*60*60*24*365.25);
 function yearFrac(date) {
@@ -27,11 +50,6 @@ function yearFrac(date) {
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
-
-const priceList = companys
-  .map((item, key) => <MenuItem value={key} primaryText={item.Name} />);
-
-priceList.unshift(<MenuItem value="custom" primaryText="Custom Company" />);
 
 class View extends Component {
 
@@ -80,6 +98,7 @@ class View extends Component {
     if (customCompanies) console.log('customCompanies.toJS()', customCompanies.toJS());
 
     const companiesExtended = companys.concat(customCompanies.toJS());
+    const companiesExtendedImmutable = fromJS(companiesExtended);
 
     console.log('state', selected);
 
@@ -93,23 +112,49 @@ class View extends Component {
     ];
 
     const table = groups.map((item, key) => {
-      const name = item.getIn([0, 'name']);
+      const name = item.getIn([0, 'name'], '') || '';
       const sumTransactions = item
         .reduce((sum, item) => sum + item.get('sum'), 0);
 
+      // const numberOfShares = item
+      //   .filter(item => item.get('type') && (item.get('type').toLowerCase() == 'KÖPT' || item.get('type').toLowerCase() == 'SÄLJ'))
+      //   // .filter(item => item.get('type') || item.get('type').toLowerCase() !== 'utdelning')
+      //   .reduce((sum, item) => sum + item.get('amount'), 0);
+
       const numberOfShares = item
-        .filter(item => item.get('type') && (item.get('type').toLowerCase() == 'KÖPT' || item.get('type').toLowerCase() == 'SÄLJ'))
-        // .filter(item => item.get('type') || item.get('type').toLowerCase() !== 'utdelning')
+        .filter(item => item.get('type') !== 'Utdelning')
         .reduce((sum, item) => sum + item.get('amount'), 0);
 
-      const mappedData = item
-      .filter(item => isNumeric(item.get('sum')))
-      .map((item) => ({
-          yearFrac: yearFrac(item.get('date')),
-          value: item.get('sum')
-        }));
 
-      const intrest = internalIntrest(mappedData, 0);
+      const mappedData = item
+        .filter(item => isNumeric(item.get('sum')))
+        .map((item) => ({
+            yearFrac: yearFrac(item.get('date')),
+            value: item.get('sum')
+          }));
+
+      console.log('the Name', name);
+
+      const bestStringMatch = companysImmutable
+        .filter(c => c.get('CountryUrlName'))
+        .minBy(c => stringDiffMetric(c.get('CountryUrlName').toLowerCase(), name.toLowerCase()));
+
+      console.log('bestStringMatch', item.toJS(), bestStringMatch);
+
+      const minMetric = stringDiffMetric(bestStringMatch.get('CountryUrlName').toLowerCase(), name.toLowerCase());
+
+      const price = minMetric < 8 ? bestStringMatch.get('price') : 0;
+      const nowValue = numberOfShares*price;
+
+      console.log(
+        'name: ', name,
+        bestStringMatch.get('CountryUrlName'),
+        stringDiffMetric(bestStringMatch.get('CountryUrlName').toLowerCase(), name.toLowerCase()),
+        'nowValue', nowValue,
+        'numberOfShares', numberOfShares
+      );
+
+      const intrest = internalIntrest(mappedData, nowValue);
 
       return [name, sumTransactions, numberOfShares, Math.round(100*intrest) + '%'];
     });
@@ -213,6 +258,8 @@ class View extends Component {
   }
 }
 
+// console.log('companysImmutable', companysImmutable.toJS());
+
 function mapStateToProps(state) {
   console.log('state', state.returnReducer.toJS());
   return {
@@ -222,6 +269,10 @@ function mapStateToProps(state) {
       .get('transactions', new Map())
       .get('dataPoints', new Map())
       .groupBy(point => point.get('name'))
+      // .filter((item, key) => key)
+      // .map((group, key) => group.set('stringMatch', companysImmutable
+      //   .filter(c => c.get('CountryUrlName'))
+      //   .minBy(c => stringDiffMetric(c.get('CountryUrlName').toLowerCase(), key.toLowerCase()))))
       .toList(),
     customCompanies: state.returnReducer.get('customCompanies'),
     // transactions: state.returnReducer.get('transactions', new Map()),

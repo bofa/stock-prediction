@@ -30,11 +30,14 @@ function formatKpisResponseSingle (response) {
 }
 
 function formatStockPriceData (response) {
-  const range = fromJS(response.data).slice(-90).map(item => item.get('y'));
+  const range = fromJS(response).slice(-90).map(item => item.get('y'));
   const [bias, slope] = leastSquarceEstimate(range.toJS());
   const relativeSlope = slope / range.get(-1);
 
-  return relativeSlope;
+  return {
+    price: response[response.length-1].y,
+    stockPriceMomentum: relativeSlope
+  };
 }
 
 function consolePipe (pipe, override) {
@@ -47,7 +50,7 @@ function consolePipe (pipe, override) {
 }
 
 function call(comp) {
-  return Promise.all([axios.get(`https://borsdata.se/api/AnalysisReport?analysisTime=0&analysisType=1&companyUrl=${comp.CountryUrlName}`)
+  return Promise.all([axios.get(`https://borsdata.se/api/AnalysisReport?analysisTime=0&analysisType=1&companyUrl=${comp.CountryUrlName}`, { headers: { Cookie }})
       .then(r => r.data)
       .catch(() => consolePipe('Error1!' + comp.CountryUrlName, [])),
     axios.get(`https://borsdata.se/api/AnalysisHighChartSeries?analysisTime=0&companyUrl=${comp.CountryUrlName}&kpiId=63`, {
@@ -60,6 +63,7 @@ function call(comp) {
       .catch(error => consolePipe('Error3!' + error + comp.CountryUrlName, {})),
     axios.get(`https://borsdata.se/api/highchart?companyUrlName=${comp.CountryUrlName}`)
       .then(r => r.data)
+      .then(formatStockPriceData)
       .catch(() => {}),
     axios.get(`https://borsdata.se/api/AnalysisHighChartSeries?analysisTime=0&companyUrl=${comp.CountryUrlName}&kpiId=61`,{
         headers: { Cookie }})
@@ -82,11 +86,28 @@ function delayApiCall(comp, delay = 20000) {
   });
 }
 
-axios.post('https://borsdata.se/complist/GetCompanies', {"filter":{"KpiFilter":[{"CategoryId":9,"AdditionalId":151,"KpiId":151,"CalculationType":2,"Calculation":20,"CalcTime":1}],"SelectedMarkets":[],"SelectedCountries":[1,2,3,4],"Page":0,"RowsInPage":10000,"ShowOnlySme":false,"ShowOnlyIntroduce":false,"CompanyNameOrdering":0}})
+axios.post('https://borsdata.se/complist/GetCompanies', {
+  "filter":{
+    "KpiFilter":[{
+      "CategoryId":9,
+      "AdditionalId":151,
+      "KpiId":151,
+      "CalculationType":2,
+      "Calculation":20,
+      "CalcTime":1
+    }],
+    "SelectedMarkets":[],
+    "SelectedCountries":[1,2,3,4],
+    "Page":0,
+    "RowsInPage":10000,
+    "ShowOnlySme":false,
+    "ShowOnlyIntroduce":false,
+    "CompanyNameOrdering":0
+  }})
   .then(response => response.data.data)
   .then(companyNames => Promise.all(companyNames
-    // .filter((v, index) => index < 10)
-    // .filter((v, index) => index < 120)
+    // .filter((v, index) => index < 1)
+    // .filter((v, index) => index < 15)
     // .filter((v, index) => v.Name === 'Amazon')
     .map((comp, index) => delayApiCall(comp, 4000*index, index)
       .then(response => {

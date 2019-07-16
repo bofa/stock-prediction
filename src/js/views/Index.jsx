@@ -9,7 +9,7 @@ import { rootRoute } from '../routes';
 import bdIcon from '../../images/bd.png';
 import Table from '../components/Table';
 import Filter from '../components/Filter';
-import companys from '../data';
+import importStockData from '../data';
 import { intrest as investmentIntrestGroups, saftyMargin } from '../data/manualData';
 import { leastSquarceEstimate, dividendEstimate, earningsEstimate, yearsToPayOff } from '../services/ls';
 import { average } from '../services/statistics';
@@ -33,6 +33,11 @@ class StockApp extends Component {
     companies: new Map()
   }
 
+  constructor() {
+    super();
+    importStockData().then(companys => this.setState({ companys }));
+  }
+
   render() {
     const {
       stocks,
@@ -47,9 +52,16 @@ class StockApp extends Component {
       leverageType
     } = this.props;
 
+    const { companys } = this.state;
+
+    if(!companys) {
+      return false;
+    }
+
     function sorter(company) {
-      if(sortOn === 'earnings')
+      if(sortOn === 'earnings') {
         return -company.get('earningsEstimate');
+      }
 
       return -company.get('estimate');
     }
@@ -59,12 +71,16 @@ class StockApp extends Component {
       > 0.1*company.get('dividend').reduce((sum, cash) => sum + cash, 0);
     }
 
+    // console.log('here', companys.toJS());
+
     const companysMerge = companys
       .filter(company => company.getIn(['historyLength']) >= minHistoryLength)
       .map(company => setModel(company, minHistoryLength))
       .mergeDeep(stocks)
-      // .filter((c, key) => key === 'matas')
       .filter(company => !company.getIn(['hide']))
+      // .filter((c, key) => key === 'avanza')
+      .toList()
+      // .filter((c, i) => 4000 < i < 8000 )
       .filter(company => !(positiveEarningsGrowth && company.getIn(['earningsLs', 1]) < 0))
       .filter(company => !(positiveRevenuGrowth && company.getIn(['revenueLs', 1]) < 0))
       // .filter(company => !(positiveFreeCashFlowGrowth && company.getIn(['freeCashFlowLs', 1]) < 0))
@@ -77,8 +93,8 @@ class StockApp extends Component {
         .set('estimate', leverage*dividendEstimate(company, projectionTime, intrest)/company.get('price')/company.getIn(['numberOfStocks', -1]) - cost)
         .set('earningsEstimate', leverage*earningsEstimate(company, projectionTime) - cost);
       })
+      .filter(company => company.get('estimate') > 0.03)
       // .filter(company => !isNaN(company.get('estimate')))
-      .toList()
       .sortBy(sorter);
       // .filter((value, index) => index < 100);
 
